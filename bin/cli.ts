@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'package.json'), 'utf-8'));
-const DIST_DIR = path.join(__dirname, '..', '..');
+const DIST_DIR = path.join(__dirname, '..');
 
 const pm = detectPackageManager();
 

@@ -7,9 +7,6 @@
   "bin": {
     "intellisearch": "./dist/bin/cli.js"
   },
-  "exports": {
-    ".": "./dist/index.js"
-  },
   "scripts": {
     "build": "tsc && node dist/scripts/build.js",
     "prepack": "tsc && node dist/scripts/build.js",
@@ -53,9 +50,6 @@
     "url": "https://github.com/yourusername/opencode-intellisearch/issues"
   },
   "homepage": "https://github.com/yourusername/opencode-intellisearch#readme",
-  "peerDependencies": {
-    "@opencode-ai/plugin": ">=1.0.0"
-  },
   "engines": {
     "node": ">=18.0.0"
   },
