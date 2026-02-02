@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { detectPackageManager } = require('../scripts/detect-pm');
+const { detectProjectInstall, getOpenCodeDir, copyDirectory, createSymlink, removeDirectory, removeFile } = require('../scripts/shared');
 
 const packageJson = require('../package.json');
 const DIST_DIR = path.join(__dirname, '..', 'dist');
@@ -48,65 +49,14 @@ EXAMPLES:
   intellisearch uninstall --global
 
 PLUGIN INSTALLATION (Recommended):
-  For the simplest installation with automatic updates, add to opencode.json:
+  For simplest installation with automatic updates, add to opencode.json:
   {
     "$schema": "https://opencode.ai/config.json",
     "plugin": ["opencode-intellisearch"]
   }
 
-  OpenCode will automatically load the extension from node_modules/.
-  No file copying or manual installation needed.
+  OpenCode will automatically load the plugin and install skills/commands.
 `);
-}
-
-function detectProjectInstall() {
-  let dir = process.cwd();
-  while (dir !== path.dirname(dir)) {
-    if (fs.existsSync(path.join(dir, 'package.json'))) {
-      return true;
-    }
-    dir = path.dirname(dir);
-  }
-  return false;
-}
-
-function getOpenCodeDir(isLocal) {
-  if (isLocal) {
-    return path.join(process.cwd(), '.opencode');
-  }
-
-  const configDir = process.env.OPENCODE_CONFIG_DIR ||
-    process.env.XDG_CONFIG_HOME ||
-    path.join(process.env.HOME, '.config');
-  return path.join(configDir, 'opencode');
-}
-
-function copyDirectory(src, dest) {
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
-  }
-
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-
-    if (entry.isDirectory()) {
-      copyDirectory(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
-  }
-}
-
-function createSymlink(src, dest) {
-  try {
-    fs.symlinkSync(src, dest, 'dir');
-    return true;
-  } catch (error) {
-    return false;
-  }
 }
 
 function install(isLocal) {
@@ -179,36 +129,6 @@ function install(isLocal) {
   console.log('✅ Installation successful!');
   console.log('');
   console.log(`🎉 intellisearch is ready to use in ${isLocal ? 'local' : 'global'} OpenCode configuration.`);
-}
-
-function removeDirectory(dir) {
-  if (fs.existsSync(dir)) {
-    try {
-      fs.rmSync(dir, { recursive: true, force: true });
-      return true;
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        return false;
-      }
-      throw error;
-    }
-  }
-  return false;
-}
-
-function removeFile(file) {
-  if (fs.existsSync(file)) {
-    try {
-      fs.unlinkSync(file);
-      return true;
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        return false;
-      }
-      throw error;
-    }
-  }
-  return false;
 }
 
 function uninstall(isLocal) {

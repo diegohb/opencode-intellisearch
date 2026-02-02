@@ -4,6 +4,7 @@ const { detectPackageManager } = require('./detect-pm');
 
 const SOURCE_DIR = path.join(__dirname, '..', 'source');
 const DIST_DIR = path.join(__dirname, '..', 'dist');
+const ROOT_DIR = path.join(__dirname, '..');
 
 const pm = detectPackageManager();
 
@@ -37,6 +38,14 @@ function copyDirectory(src, dest) {
   }
 }
 
+// Copy plugin entry point
+const indexSrc = path.join(ROOT_DIR, 'index.js');
+const indexDest = path.join(DIST_DIR, 'index.js');
+if (fs.existsSync(indexSrc)) {
+  fs.copyFileSync(indexSrc, indexDest);
+  console.log(`   ✓ index.js (plugin entry)`);
+}
+
 // Copy all contents from source to dist
 console.log('');
 console.log('Copying files from source/ to dist/...');
@@ -48,6 +57,6 @@ console.log('');
 console.log('📦 Distribution files created in dist/');
 console.log('');
 console.log('📝 Next steps:');
-console.log(`   - ${pm} run install:global  (install globally)`);
-console.log(`   - ${pm} run install:local   (install locally)`);
-console.log(`   - ${pm === 'bun' ? 'bunx' : 'npx'} opencode-intellisearch  (use without installing)`);
+console.log(`   - bun install -g .  (install globally for plugin method)`);
+console.log(`   - bun install .  (install locally for plugin method)`);
+console.log(`   - ${pm === 'bun' ? 'bunx' : 'npx'} intellisearch install  (manual method)`);
