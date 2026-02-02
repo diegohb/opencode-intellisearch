@@ -22,16 +22,17 @@ function showHelp(): void {
 intellisearch - OpenCode intelligent search extension
 
 USAGE:
-  intellisearch <command> [options]
+  intellisearch [command] [options]
 
 COMMANDS:
-  install             Install files (auto-detects scope)
+  install             Install files (auto-detects scope, default)
   uninstall           Uninstall files (auto-detects scope)
   --help, -h          Show this help message
 
 OPTIONS:
   --local, -l         Force install/uninstall in current project (.opencode/)
-  --global, -g         Force install/uninstall globally (~/.config/opencode/)
+  --global, -g        Force install/uninstall globally (~/.config/opencode/)
+  --force, -f         Force reinstall even if already installed
 
 SCOPE DETECTION:
   Automatically detects if installation is in a project:
@@ -40,41 +41,45 @@ SCOPE DETECTION:
   Use --local or --global to override auto-detection.
 
 EXAMPLES:
-  # Auto-detect scope (recommended)
-  intellisearch install
-  intellisearch uninstall
+  # Quick install (npx defaults to install)
+  npx opencode-intellisearch
 
-  # Force project install
-  intellisearch install --local
-  intellisearch uninstall --local
+  # Bun equivalent
+  bunx opencode-intellisearch
 
-  # Force global install
-  intellisearch install --global
-  intellisearch uninstall --global
+  # Uninstall
+  npx opencode-intellisearch uninstall
 
-PLUGIN INSTALLATION (Recommended):
-  For simplest installation with automatic updates, add to opencode.json:
-  {
-    "$schema": "https://opencode.ai/config.json",
-    "plugin": ["opencode-intellisearch"]
-  }
-
-  OpenCode will automatically load the plugin and install skills/commands.
+  # Force reinstall
+  npx opencode-intellisearch --force
 `);
 }
 
-function install(isLocal: boolean): void {
-  const targetDir = getOpenCodeDir(isLocal);
-  const skillsDir = path.join(targetDir, 'skills');
-  const commandsDir = path.join(targetDir, 'commands');
+function isInstalled(targetDir: string): boolean {
+  const skillsDir = path.join(targetDir, 'skills', 'intellisearch');
+  const commandFile = path.join(targetDir, 'commands', 'intellisearch.md');
+  return fs.existsSync(skillsDir) && fs.existsSync(commandFile);
+}
 
-  console.log(`📦 Installing intellisearch ${isLocal ? 'locally' : 'globally'}...`);
-  console.log(`   Target: ${targetDir}\n`);
+function install(isLocal: boolean, force: boolean): void {
+  const targetDir = getOpenCodeDir(isLocal);
 
   if (!fs.existsSync(DIST_DIR)) {
     console.error('❌ dist directory not found. Run "npm run build" first.');
     process.exit(1);
   }
+
+  if (!force && isInstalled(targetDir)) {
+    console.log(`\nℹ️  intellisearch is already installed in ${isLocal ? 'local' : 'global'} location.`);
+    console.log('   Use --force to reinstall.\n');
+    return;
+  }
+
+  const skillsDir = path.join(targetDir, 'skills');
+  const commandsDir = path.join(targetDir, 'commands');
+
+  console.log(`📦 Installing intellisearch ${isLocal ? 'locally' : 'globally'}...`);
+  console.log(`   Target: ${targetDir}\n`);
 
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
@@ -168,9 +173,22 @@ function uninstall(isLocal: boolean): void {
   console.log('👋 Thank you for using intellisearch!');
 }
 
-const command = process.argv[2];
 const isLocalFlag = process.argv.includes('--local') || process.argv.includes('-l');
 const isGlobalFlag = process.argv.includes('--global') || process.argv.includes('-g');
+const isForceFlag = process.argv.includes('--force') || process.argv.includes('-f');
+const isHelpFlag = process.argv.includes('--help') || process.argv.includes('-h');
+
+let command: string | undefined;
+
+for (let i = 2; i < process.argv.length; i++) {
+  const arg = process.argv[i];
+  if (!arg.startsWith('-')) {
+    command = arg;
+    break;
+  }
+}
+
+command = command || 'install';
 
 let isLocal: boolean;
 
@@ -187,10 +205,10 @@ if (isLocalFlag && isGlobalFlag) {
   console.log(`ℹ️  Auto-detected scope: ${isLocal ? 'project (local)' : 'global'}\n`);
 }
 
-if (!command || command === '--help' || command === '-h') {
+if (isHelpFlag) {
   showHelp();
 } else if (command === 'install') {
-  install(isLocal);
+  install(isLocal, isForceFlag);
 } else if (command === 'uninstall') {
   uninstall(isLocal);
 } else {

@@ -14,9 +14,21 @@ Intelligent web search routing for OpenCode with automatic tool selection, grace
 
 ## 🚀 Installation
 
-### Option 1: Plugin (Recommended)
+### Quick Install (npx/bunx)
 
-**Best for**: Users who want the simplest installation with automatic updates
+```bash
+# npm
+npx opencode-intellisearch
+
+# bun
+bunx opencode-intellisearch
+```
+
+Auto-detects project vs global based on `package.json` presence.
+
+### Plugin Method
+
+**Best for**: Users who want OpenCode to manage the plugin
 
 Add to `~/.config/opencode/opencode.json` or project `opencode.json`:
 
@@ -27,42 +39,24 @@ Add to `~/.config/opencode/opencode.json` or project `opencode.json`:
 }
 ```
 
-OpenCode will automatically load the plugin from `node_modules/`.
-
-### Option 2: Manual CLI
-
-**Best for**: Users who want files copied to `.opencode/` directory or need manual control
-
+Then run the CLI to install skills/commands:
 ```bash
-# Build first
-npm run build
-
-# Install (auto-detects scope)
-node dist/bin/cli.js install
-
-# Force project install
-node dist/bin/cli.js install --local
-
-# Force global install
-node dist/bin/cli.js install --global
+npx opencode-intellisearch
 ```
 
-### Option 3: Bun Link (Local Development)
+### Options
 
-**Best for**: Development and testing without publishing to npm
+| Flag | Description |
+|------|-------------|
+| `--local` | Force install to `.opencode/` (project) |
+| `--global` | Force install to `~/.config/opencode/` |
+| `--force` | Reinstall even if already installed |
+| `--help` | Show help |
 
-```bash
-# Create global link
-bun link
+### Scope Detection
 
-# Use in any project
-bun link opencode-intellisearch
-```
-
-**Scope Detection**:
 - **Project install**: `.opencode/` (detected by `package.json` in parent directories)
 - **Global install**: `~/.config/opencode/` (default if not in a project)
-- Use `--local` or `--global` to override auto-detection
 
 ## 📖 Usage
 
@@ -153,18 +147,18 @@ Tertiary (webfetch)
 **"npm command not found" - npm is not installed:**
 - Install Node.js from [nodejs.org](https://nodejs.org/)
 
+**"npx: command not found" - npx is not installed:**
+- Install Node.js from [nodejs.org](https://nodejs.org/)
+
 **"Permission denied" - Cannot install globally:**
 ```bash
-# Bun
-sudo bun install -g opencode-intellisearch
-
 # npm
 sudo npm install -g opencode-intellisearch
 ```
 
-**"intellisearch: command not found" error:**
-- Build first: `npm run build`
-- Use full path: `node dist/bin/cli.js install`
+**Files not installed:**
+- Run `npx opencode-intellisearch` to install skills/commands
+- Add `--force` to reinstall if already present
 
 ### Search Issues
 
@@ -201,33 +195,15 @@ cp dist/commands/* .opencode/commands/
 
 ## 🗑️  Uninstall
 
-### Plugin Method
-
-Remove from `~/.config/opencode/opencode.json`:
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": []
-}
-```
-
-Or uninstall package:
 ```bash
-bun remove -g opencode-intellisearch
+# npm
+npx opencode-intellisearch uninstall
+
+# bun
+bunx opencode-intellisearch uninstall
 ```
 
-### CLI Method
-
-```bash
-# Uninstall (auto-detects scope)
-node dist/bin/cli.js uninstall
-
-# Force project uninstall
-node dist/bin/cli.js uninstall --local
-
-# Force global uninstall
-node dist/bin/cli.js uninstall --global
-```
+Or remove from opencode.json plugin array.
 
 ## 🛠️ Development
 
