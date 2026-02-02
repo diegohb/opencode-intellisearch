@@ -575,7 +575,7 @@ If paths exceed 260 characters (Windows limit):
 
 ## Getting Help
 
-- Check [GitHub Issues](https://github.com/yourusername/opencode-intellisearch/issues)
+- Check [GitHub Issues](https://github.com/diegohb/opencode-intellisearch/issues)
 - Review [OpenCode Documentation](https://opencode.ai/docs)
 - Join [OpenCode Discord](https://discord.gg/opencode)
 
@@ -617,7 +617,7 @@ Copy-Item -Force dist\commands\intellisearch.md .opencode\commands\
 
 ```bash
 # Clone and setup
-git clone https://github.com/yourusername/opencode-intellisearch.git
+git clone https://github.com/diegohb/opencode-intellisearch.git
 cd opencode-intellisearch
 
 # Install dependencies
