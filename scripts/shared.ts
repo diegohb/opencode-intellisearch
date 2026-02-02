@@ -1,7 +1,7 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
-function detectProjectInstall() {
+export function detectProjectInstall(): boolean {
   let dir = process.cwd();
   while (dir !== path.dirname(dir)) {
     if (fs.existsSync(path.join(dir, 'package.json'))) {
@@ -12,18 +12,18 @@ function detectProjectInstall() {
   return false;
 }
 
-function getOpenCodeDir(isLocal) {
+export function getOpenCodeDir(isLocal: boolean): string {
   if (isLocal) {
     return path.join(process.cwd(), '.opencode');
   }
 
   const configDir = process.env.OPENCODE_CONFIG_DIR ||
     process.env.XDG_CONFIG_HOME ||
-    path.join(process.env.HOME || process.env.USERPROFILE, '.config');
+    path.join(process.env.HOME || process.env.USERPROFILE || '', '.config');
   return path.join(configDir, 'opencode');
 }
 
-function copyDirectory(src, dest) {
+export function copyDirectory(src: string, dest: string): void {
   if (!fs.existsSync(dest)) {
     fs.mkdirSync(dest, { recursive: true });
   }
@@ -42,22 +42,22 @@ function copyDirectory(src, dest) {
   }
 }
 
-function createSymlink(src, dest) {
+export function createSymlink(src: string, dest: string): boolean {
   try {
     fs.symlinkSync(src, dest, 'dir');
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
 
-function removeDirectory(dir) {
+export function removeDirectory(dir: string): boolean {
   if (fs.existsSync(dir)) {
     try {
       fs.rmSync(dir, { recursive: true, force: true });
       return true;
     } catch (error) {
-      if (error.code === 'ENOENT') {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         return false;
       }
       throw error;
@@ -66,13 +66,13 @@ function removeDirectory(dir) {
   return false;
 }
 
-function removeFile(file) {
+export function removeFile(file: string): boolean {
   if (fs.existsSync(file)) {
     try {
       fs.unlinkSync(file);
       return true;
     } catch (error) {
-      if (error.code === 'ENOENT') {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         return false;
       }
       throw error;
@@ -81,7 +81,7 @@ function removeFile(file) {
   return false;
 }
 
-function installFiles(DIST_DIR, targetDir) {
+export function installFiles(DIST_DIR: string, targetDir: string): void {
   const skillsDir = path.join(targetDir, 'skills');
   const commandsDir = path.join(targetDir, 'commands');
 
@@ -116,7 +116,7 @@ function installFiles(DIST_DIR, targetDir) {
 
   if (fs.existsSync(distCommandsDir)) {
     const commandFiles = fs.readdirSync(distCommandsDir);
-    commandFiles.forEach(file => {
+    for (const file of commandFiles) {
       const srcPath = path.join(distCommandsDir, file);
       const destPath = path.join(commandsDir, file);
 
@@ -129,16 +129,6 @@ function installFiles(DIST_DIR, targetDir) {
       if (!symlinkSuccess) {
         fs.copyFileSync(srcPath, destPath);
       }
-    });
+    }
   }
 }
-
-module.exports = {
-  detectProjectInstall,
-  getOpenCodeDir,
-  copyDirectory,
-  createSymlink,
-  removeDirectory,
-  removeFile,
-  installFiles
-};

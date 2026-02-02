@@ -2,23 +2,25 @@
   "name": "opencode-intellisearch",
   "version": "1.0.0",
   "description": "Intelligent web search routing for OpenCode with automatic tool selection, graceful fallbacks, and memory caching",
+  "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "intellisearch": "./bin/cli.js"
+    "intellisearch": "./dist/bin/cli.js"
   },
   "exports": {
     ".": "./dist/index.js"
   },
   "scripts": {
-    "build": "node scripts/build.js",
-    "prepack": "node scripts/build.js",
-    "postinstall": "node scripts/postinstall.js"
+    "build": "tsc && node dist/scripts/build.js",
+    "prepack": "tsc && node dist/scripts/build.js",
+    "postinstall": "node dist/bin/cli.js install"
   },
   "files": [
     "dist/**/*",
     "bin/**/*",
     "scripts/**/*",
-    "index.js",
+    "index.ts",
+    "tsconfig.json",
     "LICENSE",
     "README.md",
     "INSTALLATION.md",
@@ -61,5 +63,9 @@
     "darwin",
     "linux",
     "win32"
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "typescript": "^5.9.3"
+  }
 }

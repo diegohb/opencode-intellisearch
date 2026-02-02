@@ -1,19 +1,23 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { detectPackageManager } = require('../scripts/detect-pm');
-const { detectProjectInstall, getOpenCodeDir, copyDirectory, createSymlink, removeDirectory, removeFile } = require('../scripts/shared');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { detectPackageManager } from '../scripts/detect-pm.js';
+import { detectProjectInstall, getOpenCodeDir, copyDirectory, createSymlink, removeDirectory, removeFile } from '../scripts/shared.js';
 
-const packageJson = require('../package.json');
-const DIST_DIR = path.join(__dirname, '..', 'dist');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'package.json'), 'utf-8'));
+const DIST_DIR = path.join(__dirname, '..', '..');
 
 const pm = detectPackageManager();
 
 console.log(`intellisearch v${packageJson.version}`);
 console.log(`Using package manager: ${pm}\n`);
 
-function showHelp() {
+function showHelp(): void {
   console.log(`
 intellisearch - OpenCode intelligent search extension
 
@@ -59,7 +63,7 @@ PLUGIN INSTALLATION (Recommended):
 `);
 }
 
-function install(isLocal) {
+function install(isLocal: boolean): void {
   const targetDir = getOpenCodeDir(isLocal);
   const skillsDir = path.join(targetDir, 'skills');
   const commandsDir = path.join(targetDir, 'commands');
@@ -106,7 +110,7 @@ function install(isLocal) {
 
   if (fs.existsSync(distCommandsDir)) {
     const commandFiles = fs.readdirSync(distCommandsDir);
-    commandFiles.forEach(file => {
+    for (const file of commandFiles) {
       const srcPath = path.join(distCommandsDir, file);
       const destPath = path.join(commandsDir, file);
 
@@ -122,7 +126,7 @@ function install(isLocal) {
         fs.copyFileSync(srcPath, destPath);
         console.log('   ✓ Commands installed (copy - symlinks not supported)');
       }
-    });
+    }
   }
 
   console.log('');
@@ -131,7 +135,7 @@ function install(isLocal) {
   console.log(`🎉 intellisearch is ready to use in ${isLocal ? 'local' : 'global'} OpenCode configuration.`);
 }
 
-function uninstall(isLocal) {
+function uninstall(isLocal: boolean): void {
   const targetDir = getOpenCodeDir(isLocal);
   const skillsDir = path.join(targetDir, 'skills');
   const commandsDir = path.join(targetDir, 'commands');
@@ -168,7 +172,7 @@ const command = process.argv[2];
 const isLocalFlag = process.argv.includes('--local') || process.argv.includes('-l');
 const isGlobalFlag = process.argv.includes('--global') || process.argv.includes('-g');
 
-let isLocal;
+let isLocal: boolean;
 
 if (isLocalFlag && isGlobalFlag) {
   console.error('\n❌ Cannot specify both --local and --global');

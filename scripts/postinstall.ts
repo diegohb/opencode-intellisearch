@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { detectProjectInstall, getOpenCodeDir, installFiles } = require('./shared');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { detectProjectInstall, getOpenCodeDir, installFiles } from './shared.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 
@@ -23,6 +27,6 @@ try {
 
   console.log('✅ intellisearch installation complete!');
 } catch (error) {
-  console.error('❌ intellisearch postinstall failed:', error.message);
+  console.error('❌ intellisearch postinstall failed:', (error as Error).message);
   process.exit(0);
 }

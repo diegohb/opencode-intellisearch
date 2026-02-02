@@ -1,4 +1,4 @@
-function detectPackageManager() {
+export function detectPackageManager(): string {
   const userAgent = process.env.npm_config_user_agent || process.env.USERAGENT || '';
   const isBun = userAgent.startsWith('bun') || process.env.BUN_INSTALL;
 
@@ -20,5 +20,3 @@ function detectPackageManager() {
 
   return 'npm';
 }
-
-module.exports = { detectPackageManager };
