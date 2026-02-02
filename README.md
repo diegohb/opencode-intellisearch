@@ -10,7 +10,7 @@ Intelligent web search routing for OpenCode with automatic tool selection, grace
 - **Graceful Fallbacks**: Falls back through DuckDuckGo and webfetch when primary tools unavailable
 - **Memory Caching**: Caches search results for faster follow-up queries (optional)
 - **Cross-Platform**: Works on Windows, macOS, and Linux
-- **Package Manager Agnostic**: Works with Bun (primary) and npm (fallback)
+- **TypeScript + ESM**: Built with TypeScript for type safety, uses ESM for OpenCode plugin compatibility
 
 ## 🚀 Installation
 
@@ -18,7 +18,7 @@ Intelligent web search routing for OpenCode with automatic tool selection, grace
 
 **Best for**: Users who want the simplest installation with automatic updates
 
-Add to `~/.config/opencode/opencode.json`:
+Add to `~/.config/opencode/opencode.json` or project `opencode.json`:
 
 ```json
 {
@@ -27,45 +27,42 @@ Add to `~/.config/opencode/opencode.json`:
 }
 ```
 
-OpenCode will automatically load the extension from `node_modules/`. No installation command needed.
+OpenCode will automatically load the plugin from `node_modules/`.
 
 ### Option 2: Manual CLI
 
 **Best for**: Users who want files copied to `.opencode/` directory or need manual control
 
 ```bash
+# Build first
+npm run build
+
 # Install (auto-detects scope)
-intellisearch install
+node dist/bin/cli.js install
 
 # Force project install
-intellisearch install --local
+node dist/bin/cli.js install --local
 
 # Force global install
-intellisearch install --global
+node dist/bin/cli.js install --global
+```
 
-# Uninstall (auto-detects scope)
-intellisearch uninstall
+### Option 3: Bun Link (Local Development)
 
-# Force project uninstall
-intellisearch uninstall --local
+**Best for**: Development and testing without publishing to npm
 
-# Force global uninstall
-intellisearch uninstall --global
+```bash
+# Create global link
+bun link
+
+# Use in any project
+bun link opencode-intellisearch
 ```
 
 **Scope Detection**:
 - **Project install**: `.opencode/` (detected by `package.json` in parent directories)
 - **Global install**: `~/.config/opencode/` (default if not in a project)
 - Use `--local` or `--global` to override auto-detection
-
-**Symlink vs Copy**:
-- The CLI uses symlinks when possible for automatic updates
-- Falls back to file copying if symlinks are not supported (e.g., Windows permissions)
-- Both methods work identically from OpenCode's perspective
-
-**OPENCODE_CONFIG_DIR Support**:
-- The CLI respects the `OPENCODE_CONFIG_DIR` environment variable
-- If set, global installs will use this directory instead of `~/.config/opencode/`
 
 ## 📖 Usage
 
@@ -80,8 +77,8 @@ intellisearch uninstall --global
 
 ### Runtime
 
-- **Bun** (Primary) - Download from [bun.sh](https://bun.sh/)
-- **Node.js** (Alternative) - Download from [nodejs.org/](https://nodejs.org/) version 18+
+- **Bun** - Download from [bun.sh](https://bun.sh/)
+- **Node.js** - Download from [nodejs.org/](https://nodejs.org/) version 18+
 
 ### MCP Servers
 
@@ -166,9 +163,8 @@ sudo npm install -g opencode-intellisearch
 ```
 
 **"intellisearch: command not found" error:**
-- Install the package first: `bun install -g opencode-intellisearch`
-- Verify installation completed successfully
-- Try using full path: `~/.bun/install/global/bin/intellisearch` (Bun) or `npm list -g | grep intellisearch`
+- Build first: `npm run build`
+- Use full path: `node dist/bin/cli.js install`
 
 ### Search Issues
 
@@ -224,13 +220,29 @@ bun remove -g opencode-intellisearch
 
 ```bash
 # Uninstall (auto-detects scope)
-intellisearch uninstall
+node dist/bin/cli.js uninstall
 
 # Force project uninstall
-intellisearch uninstall --local
+node dist/bin/cli.js uninstall --local
 
 # Force global uninstall
-intellisearch uninstall --global
+node dist/bin/cli.js uninstall --global
+```
+
+## 🛠️ Development
+
+```bash
+# Install dependencies
+npm install
+
+# Build TypeScript
+npm run build
+
+# Test CLI
+node dist/bin/cli.js install --local
+
+# Link for local testing
+bun link
 ```
 
 ## 📄 License

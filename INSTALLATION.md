@@ -8,6 +8,7 @@ Detailed installation instructions for intellisearch extension for OpenCode.
 - [Installation Options](#installation-options)
 - [Option 1: Plugin (Recommended)](#option-1-plugin-recommended)
 - [Option 2: Manual CLI](#option-2-manual-cli)
+- [Option 3: Bun Link (Local Development)](#option-3-bun-link-local-development)
 - [MCP Server Setup](#mcp-server-setup)
 - [Verification](#verification)
 - [Uninstallation](#uninstallation)
@@ -26,14 +27,19 @@ Detailed installation instructions for intellisearch extension for OpenCode.
 - [Bun](https://bun.sh/) (Primary) - Fast JavaScript runtime
 - [Node.js](https://nodejs.org/) (Alternative) - Version 18+
 
+### Build Tools
+
+- [TypeScript](https://www.typescriptlang.org/) - Included as dev dependency
+
 ## Installation Options
 
-intellisearch offers two installation methods:
+intellisearch offers three installation methods:
 
-| Option | Simplicity | Control | Auto-Update | Local Support |
-|--------|--------------|----------|--------------|---------------|
-| 1. Plugin (Recommended) | ⭐⭐⭐ | ⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| 2. Manual CLI | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+| Option | Simplicity | Control | Auto-Update | Local Dev |
+|--------|--------------|----------|--------------|-----------|
+| 1. Plugin (Recommended) | ⭐⭐⭐ | ⭐ | ⭐⭐⭐ | ⭐ |
+| 2. Manual CLI | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ |
+| 3. Bun Link | ⭐⭐ | ⭐⭐⭐ | ⭐ | ⭐⭐⭐ |
 
 ## Option 1: Plugin (Recommended)
 
@@ -51,7 +57,7 @@ intellisearch offers two installation methods:
    bun install opencode-intellisearch
    ```
 
-2. Add to OpenCode config `~/.config/opencode/opencode.json`:
+2. Add to OpenCode config `~/.config/opencode/opencode.json` or project `opencode.json`:
    ```json
    {
      "$schema": "https://opencode.ai/config.json",
@@ -81,8 +87,8 @@ intellisearch offers two installation methods:
 - Follows OpenCode conventions
 
 **Cons:**
-- Less control over installation
-- Files not in `.opencode/` directory (some users prefer this)
+- Requires npm/bun publish for updates
+- Less control during development
 
 ## Option 2: Manual CLI
 
@@ -90,25 +96,32 @@ intellisearch offers two installation methods:
 
 ### Installation Steps
 
-```bash
-# Install (auto-detects scope)
-intellisearch install
+1. Build the project:
+   ```bash
+   npm install
+   npm run build
+   ```
 
-# Force project install
-intellisearch install --local
+2. Run installation command:
+   ```bash
+   # Install (auto-detects scope)
+   node dist/bin/cli.js install
 
-# Force global install
-intellisearch install --global
+   # Force project install
+   node dist/bin/cli.js install --local
 
-# Uninstall (auto-detects scope)
-intellisearch uninstall
+   # Force global install
+   node dist/bin/cli.js install --global
 
-# Force project uninstall
-intellisearch uninstall --local
+   # Uninstall (auto-detects scope)
+   node dist/bin/cli.js uninstall
 
-# Force global uninstall
-intellisearch uninstall --global
-```
+   # Force project uninstall
+   node dist/bin/cli.js uninstall --local
+
+   # Force global uninstall
+   node dist/bin/cli.js uninstall --global
+   ```
 
 ### Scope Detection
 
@@ -142,7 +155,6 @@ The CLI uses symlinks when possible:
 | `uninstall` | Uninstall (auto-detects scope) |
 | `uninstall --local` | Force uninstall from .opencode/ |
 | `uninstall --global` | Force uninstall from ~/.config/opencode/ |
-| `--help, -h` | Show help message |
 
 ### OPENCODE_CONFIG_DIR Support
 
@@ -150,7 +162,7 @@ The CLI respects the `OPENCODE_CONFIG_DIR` environment variable:
 
 ```bash
 export OPENCODE_CONFIG_DIR=/path/to/my/config-directory
-intellisearch install --global
+node dist/bin/cli.js install --global
 ```
 
 If set, global installs will use this directory instead of `~/.config/opencode/`.
@@ -189,23 +201,63 @@ If set, global installs will use this directory instead of `~/.config/opencode/`
 - Files in `.opencode/` directory
 
 **Cons:**
-- Requires manual command after package install
+- Requires building TypeScript first
 - Extra step compared to plugin method
+
+## Option 3: Bun Link (Local Development)
+
+**Best for**: Development and testing without publishing to npm
+
+### Installation Steps
+
+1. Build and link locally:
+   ```bash
+   npm install
+   npm run build
+   bun link
+   ```
+
+2. Use in any project:
+   ```bash
+   # In your project directory
+   bun link opencode-intellisearch
+
+   # Or use directly
+   bunx opencode-intellisearch install --local
+   ```
+
+### Pros & Cons
+
+**Pros:**
+- No npm publish required
+- Fast iteration cycle
+- Full TypeScript source available
+- Easy to modify and test
+
+**Cons:**
+- Only works on local machine
+- Requires bun to be installed
+- Manual update when source changes
 
 ## Which Option Should You Choose?
 
 ### Choose Plugin (Option 1) If:
 - You want the simplest installation
-- You want automatic updates
+- You want automatic updates via npm/bun
 - You don't need files in `.opencode/` directory
 - You only use one OpenCode project
 
 ### Choose Manual CLI (Option 2) If:
-- You want full control
-- You're developing/testing the extension
+- You want full control over file placement
+- You're distributing to users without npm/bun access
 - You need files in `.opencode/` directory
 - You want to verify file placement
-- You need to troubleshoot installation issues
+
+### Choose Bun Link (Option 3) If:
+- You're developing or testing the extension
+- You need to modify source code frequently
+- You don't want to publish to npm for testing
+- You need full debugging capabilities
 
 ## MCP Server Setup
 
@@ -348,13 +400,13 @@ bun remove -g opencode-intellisearch
 **CLI:**
 ```bash
 # Uninstall (auto-detects scope)
-intellisearch uninstall
+node dist/bin/cli.js uninstall
 
 # Force project uninstall
-intellisearch uninstall --local
+node dist/bin/cli.js uninstall --local
 
 # Force global uninstall
-intellisearch uninstall --global
+node dist/bin/cli.js uninstall --global
 ```
 
 **Or Bun:**
@@ -431,10 +483,9 @@ sudo npm install -g opencode-intellisearch
 #### "intellisearch: command not found" error
 
 **Check:**
-1. Run `bun install -g opencode-intellisearch` to install CLI
-2. Verify installation completed successfully
-3. Try using full path: `~/.bun/install/global/bin/intellisearch`
-4. On Windows, check that the bin directory is in your PATH
+1. Build first: `npm run build`
+2. Use full path: `node dist/bin/cli.js install`
+3. On Windows, check that Node.js is in your PATH
 
 #### "Symlink creation failed" warning
 
@@ -444,6 +495,14 @@ This is normal on Windows if symlinks are not enabled:
 - To enable symlinks on Windows (requires Developer Mode):
   1. Open "Developer Mode" in Windows Settings
   2. Restart terminal and try again
+
+#### "dist directory not found" error
+
+Build the TypeScript project first:
+```bash
+npm install
+npm run build
+```
 
 ### MCP Server Issues
 
@@ -552,4 +611,27 @@ New-Item -ItemType Directory -Force -Path .opencode\skills
 New-Item -ItemType Directory -Force -Path .opencode\commands
 Copy-Item -Recurse -Force dist\skills\intellisearch .opencode\skills\
 Copy-Item -Force dist\commands\intellisearch.md .opencode\commands\
+```
+
+## Development
+
+```bash
+# Clone and setup
+git clone https://github.com/yourusername/opencode-intellisearch.git
+cd opencode-intellisearch
+
+# Install dependencies
+npm install
+
+# Build TypeScript
+npm run build
+
+# Test CLI
+node dist/bin/cli.js install --local
+
+# Link for local testing
+bun link
+
+# Test with bunx
+bunx opencode-intellisearch install --local
 ```
