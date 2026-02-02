@@ -14,7 +14,9 @@ Intelligent web search routing for OpenCode with automatic tool selection, grace
 
 ## 🚀 Installation
 
-### Option 1: Plugin (Simplest - Recommended)
+### Option 1: Plugin (Recommended)
+
+**Best for**: Users who want the simplest installation with automatic updates
 
 Add to `~/.config/opencode/opencode.json`:
 
@@ -27,38 +29,43 @@ Add to `~/.config/opencode/opencode.json`:
 
 OpenCode will automatically load the extension from `node_modules/`. No installation command needed.
 
-### Option 2: Auto-Install (Default)
+### Option 2: Manual CLI
 
-**Global Installation:**
-```bash
-bun install -g opencode-intellisearch
-```
-
-**Local Installation:**
-```bash
-cd your-project
-bun install opencode-intellisearch
-```
-
-When installing locally, files will be automatically copied to `.opencode/skills/` and `.opencode/commands/`. OpenCode will discover them automatically.
-
-### Option 3: Manual CLI (Full Control)
+**Best for**: Users who want files copied to `.opencode/` directory or need manual control
 
 ```bash
-# Install globally
-bun install -g opencode-intellisearch
+# Install (auto-detects scope)
 intellisearch install
 
-# Install locally
-bun install opencode-intellisearch
+# Force project install
 intellisearch install --local
 
-# Uninstall globally
+# Force global install
+intellisearch install --global
+
+# Uninstall (auto-detects scope)
 intellisearch uninstall
 
-# Uninstall locally
+# Force project uninstall
 intellisearch uninstall --local
+
+# Force global uninstall
+intellisearch uninstall --global
 ```
+
+**Scope Detection**:
+- **Project install**: `.opencode/` (detected by `package.json` in parent directories)
+- **Global install**: `~/.config/opencode/` (default if not in a project)
+- Use `--local` or `--global` to override auto-detection
+
+**Symlink vs Copy**:
+- The CLI uses symlinks when possible for automatic updates
+- Falls back to file copying if symlinks are not supported (e.g., Windows permissions)
+- Both methods work identically from OpenCode's perspective
+
+**OPENCODE_CONFIG_DIR Support**:
+- The CLI respects the `OPENCODE_CONFIG_DIR` environment variable
+- If set, global installs will use this directory instead of `~/.config/opencode/`
 
 ## 📖 Usage
 
@@ -158,6 +165,11 @@ sudo bun install -g opencode-intellisearch
 sudo npm install -g opencode-intellisearch
 ```
 
+**"intellisearch: command not found" error:**
+- Install the package first: `bun install -g opencode-intellisearch`
+- Verify installation completed successfully
+- Try using full path: `~/.bun/install/global/bin/intellisearch` (Bun) or `npm list -g | grep intellisearch`
+
 ### Search Issues
 
 **"Exa MCP unavailable" - Falling back to DuckDuckGo:**
@@ -175,7 +187,7 @@ sudo npm install -g opencode-intellisearch
 
 ## 🔧 Manual Installation
 
-If package manager installation fails, manually copy files from `dist/` directory:
+If all automated methods fail, manually copy files from `dist/` directory:
 
 **Global:**
 ```bash
@@ -193,7 +205,8 @@ cp dist/commands/* .opencode/commands/
 
 ## 🗑️  Uninstall
 
-**Plugin Method:**
+### Plugin Method
+
 Remove from `~/.config/opencode/opencode.json`:
 ```json
 {
@@ -202,16 +215,22 @@ Remove from `~/.config/opencode/opencode.json`:
 }
 ```
 
-**CLI Method:**
+Or uninstall package:
 ```bash
-# Global
+bun remove -g opencode-intellisearch
+```
+
+### CLI Method
+
+```bash
+# Uninstall (auto-detects scope)
 intellisearch uninstall
 
-# Local
+# Force project uninstall
 intellisearch uninstall --local
 
-# Bun remove
-bun remove -g opencode-intellisearch
+# Force global uninstall
+intellisearch uninstall --global
 ```
 
 ## 📄 License

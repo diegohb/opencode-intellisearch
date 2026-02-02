@@ -2,15 +2,15 @@
 
 const fs = require('fs');
 const path = require('path');
+const { detectPackageManager } = require('../scripts/detect-pm');
 
 const packageJson = require('../package.json');
-const SOURCE_DIR = path.join(__dirname, '..', 'source');
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 
-const OPENCODE_CONFIG_DIR = process.env.XDG_CONFIG_HOME || path.join(process.env.HOME, '.config');
-const OPENCODE_GLOBAL_DIR = path.join(OPENCODE_CONFIG_DIR, 'opencode');
+const pm = detectPackageManager();
 
-console.log(`intellisearch v${packageJson.version}\n`);
+console.log(`intellisearch v${packageJson.version}`);
+console.log(`Using package manager: ${pm}\n`);
 
 function showHelp() {
   console.log(`
@@ -20,37 +20,65 @@ USAGE:
   intellisearch <command> [options]
 
 COMMANDS:
-  install             Install globally (default: ~/.config/opencode/)
-  uninstall           Uninstall globally (from ~/.config/opencode/)
-  --help, -h        Show this help message
+  install             Install files (auto-detects scope)
+  uninstall           Uninstall files (auto-detects scope)
+  --help, -h          Show this help message
 
 OPTIONS:
-  --local, -l       Install/uninstall in current project (.opencode/)
-  --global, -g       Force global install/uninstall (~/.config/opencode/)
+  --local, -l         Force install/uninstall in current project (.opencode/)
+  --global, -g         Force install/uninstall globally (~/.config/opencode/)
+
+SCOPE DETECTION:
+  Automatically detects if installation is in a project:
+  - Project install: .opencode/ (detected by package.json in parent directories)
+  - Global install: ~/.config/opencode/ (default if not in a project)
+  Use --local or --global to override auto-detection.
 
 EXAMPLES:
-  # Install globally (recommended)
-  npm install -g opencode-intellisearch
+  # Auto-detect scope (recommended)
   intellisearch install
-
-  # Install locally (current project)
-  npm install opencode-intellisearch
-  intellisearch install --local
-
-  # Uninstall globally
   intellisearch uninstall
 
-  # Uninstall locally
+  # Force project install
+  intellisearch install --local
   intellisearch uninstall --local
 
-PLUGIN INSTALLATION (Alternative):
-  For plugin-based installation, add to ~/.config/opencode/opencode.json:
+  # Force global install
+  intellisearch install --global
+  intellisearch uninstall --global
+
+PLUGIN INSTALLATION (Recommended):
+  For the simplest installation with automatic updates, add to opencode.json:
   {
+    "$schema": "https://opencode.ai/config.json",
     "plugin": ["opencode-intellisearch"]
   }
-  
-  This provides auto-loading and updates via npm.
+
+  OpenCode will automatically load the extension from node_modules/.
+  No file copying or manual installation needed.
 `);
+}
+
+function detectProjectInstall() {
+  let dir = process.cwd();
+  while (dir !== path.dirname(dir)) {
+    if (fs.existsSync(path.join(dir, 'package.json'))) {
+      return true;
+    }
+    dir = path.dirname(dir);
+  }
+  return false;
+}
+
+function getOpenCodeDir(isLocal) {
+  if (isLocal) {
+    return path.join(process.cwd(), '.opencode');
+  }
+
+  const configDir = process.env.OPENCODE_CONFIG_DIR ||
+    process.env.XDG_CONFIG_HOME ||
+    path.join(process.env.HOME, '.config');
+  return path.join(configDir, 'opencode');
 }
 
 function copyDirectory(src, dest) {
@@ -72,8 +100,17 @@ function copyDirectory(src, dest) {
   }
 }
 
+function createSymlink(src, dest) {
+  try {
+    fs.symlinkSync(src, dest, 'dir');
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 function install(isLocal) {
-  const targetDir = isLocal ? path.join(process.cwd(), '.opencode') : OPENCODE_GLOBAL_DIR;
+  const targetDir = getOpenCodeDir(isLocal);
   const skillsDir = path.join(targetDir, 'skills');
   const commandsDir = path.join(targetDir, 'commands');
 
@@ -101,16 +138,41 @@ function install(isLocal) {
   const distCommandsDir = path.join(DIST_DIR, 'commands');
 
   if (fs.existsSync(distSkillsDir)) {
-    copyDirectory(distSkillsDir, skillsDir);
-    console.log('   ✓ Skills installed');
+    const skillsTarget = path.join(skillsDir, 'intellisearch');
+
+    if (fs.existsSync(skillsTarget)) {
+      fs.rmSync(skillsTarget, { recursive: true, force: true });
+    }
+
+    const symlinkSuccess = createSymlink(distSkillsDir, skillsTarget);
+
+    if (symlinkSuccess) {
+      console.log('   ✓ Skills installed (symlink)');
+    } else {
+      copyDirectory(distSkillsDir, skillsTarget);
+      console.log('   ✓ Skills installed (copy - symlinks not supported)');
+    }
   }
 
   if (fs.existsSync(distCommandsDir)) {
     const commandFiles = fs.readdirSync(distCommandsDir);
     commandFiles.forEach(file => {
-      fs.copyFileSync(path.join(distCommandsDir, file), path.join(commandsDir, file));
+      const srcPath = path.join(distCommandsDir, file);
+      const destPath = path.join(commandsDir, file);
+
+      if (fs.existsSync(destPath)) {
+        fs.unlinkSync(destPath);
+      }
+
+      const symlinkSuccess = createSymlink(srcPath, destPath);
+
+      if (symlinkSuccess) {
+        console.log('   ✓ Commands installed (symlink)');
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+        console.log('   ✓ Commands installed (copy - symlinks not supported)');
+      }
     });
-    console.log('   ✓ Commands installed');
   }
 
   console.log('');
@@ -121,22 +183,36 @@ function install(isLocal) {
 
 function removeDirectory(dir) {
   if (fs.existsSync(dir)) {
-    fs.rmSync(dir, { recursive: true, force: true });
-    return true;
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+      return true;
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        return false;
+      }
+      throw error;
+    }
   }
   return false;
 }
 
 function removeFile(file) {
   if (fs.existsSync(file)) {
-    fs.unlinkSync(file);
-    return true;
+    try {
+      fs.unlinkSync(file);
+      return true;
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        return false;
+      }
+      throw error;
+    }
   }
   return false;
 }
 
 function uninstall(isLocal) {
-  const targetDir = isLocal ? path.join(process.cwd(), '.opencode') : OPENCODE_GLOBAL_DIR;
+  const targetDir = getOpenCodeDir(isLocal);
   const skillsDir = path.join(targetDir, 'skills');
   const commandsDir = path.join(targetDir, 'commands');
 
@@ -169,8 +245,23 @@ function uninstall(isLocal) {
 }
 
 const command = process.argv[2];
-const isLocal = process.argv.includes('--local') || process.argv.includes('-l');
-const isGlobal = process.argv.includes('--global') || process.argv.includes('-g');
+const isLocalFlag = process.argv.includes('--local') || process.argv.includes('-l');
+const isGlobalFlag = process.argv.includes('--global') || process.argv.includes('-g');
+
+let isLocal;
+
+if (isLocalFlag && isGlobalFlag) {
+  console.error('\n❌ Cannot specify both --local and --global');
+  console.error('Run "intellisearch --help" for usage.\n');
+  process.exit(1);
+} else if (isLocalFlag) {
+  isLocal = true;
+} else if (isGlobalFlag) {
+  isLocal = false;
+} else {
+  isLocal = detectProjectInstall();
+  console.log(`ℹ️  Auto-detected scope: ${isLocal ? 'project (local)' : 'global'}\n`);
+}
 
 if (!command || command === '--help' || command === '-h') {
   showHelp();

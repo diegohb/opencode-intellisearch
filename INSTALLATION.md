@@ -6,9 +6,8 @@ Detailed installation instructions for intellisearch extension for OpenCode.
 
 - [Prerequisites](#prerequisites)
 - [Installation Options](#installation-options)
-- [Option 1: Plugin](#option-1-plugin)
-- [Option 2: Auto-Install](#option-2-auto-install)
-- [Option 3: Manual CLI](#option-3-manual-cli)
+- [Option 1: Plugin (Recommended)](#option-1-plugin-recommended)
+- [Option 2: Manual CLI](#option-2-manual-cli)
 - [MCP Server Setup](#mcp-server-setup)
 - [Verification](#verification)
 - [Uninstallation](#uninstallation)
@@ -29,15 +28,14 @@ Detailed installation instructions for intellisearch extension for OpenCode.
 
 ## Installation Options
 
-intellisearch offers three installation methods to suit different workflows:
+intellisearch offers two installation methods:
 
 | Option | Simplicity | Control | Auto-Update | Local Support |
 |--------|--------------|----------|--------------|---------------|
-| 1. Plugin | ⭐⭐⭐ | ⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| 2. Auto-Install | ⭐⭐⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐ |
-| 3. Manual CLI | ⭐⭐ | ⭐⭐⭐ | ⭐ | ⭐⭐⭐ |
+| 1. Plugin (Recommended) | ⭐⭐⭐ | ⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+| 2. Manual CLI | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
 
-## Option 1: Plugin
+## Option 1: Plugin (Recommended)
 
 **Best for**: Users who want the simplest installation with automatic updates
 
@@ -47,7 +45,7 @@ intellisearch offers three installation methods to suit different workflows:
    ```bash
    # Global
    bun install -g opencode-intellisearch
-   
+
    # Local
    cd your-project
    bun install opencode-intellisearch
@@ -85,35 +83,77 @@ intellisearch offers three installation methods to suit different workflows:
 **Cons:**
 - Less control over installation
 - Files not in `.opencode/` directory (some users prefer this)
-- Cannot use for multiple OpenCode projects with one install
 
-## Option 2: Auto-Install
+## Option 2: Manual CLI
 
-**Best for**: Most users who want automatic file placement with control
+**Best for**: Users who want full control and files in `.opencode/` directory
 
 ### Installation Steps
 
-**Global Installation:**
 ```bash
-bun install -g opencode-intellisearch
+# Install (auto-detects scope)
+intellisearch install
+
+# Force project install
+intellisearch install --local
+
+# Force global install
+intellisearch install --global
+
+# Uninstall (auto-detects scope)
+intellisearch uninstall
+
+# Force project uninstall
+intellisearch uninstall --local
+
+# Force global uninstall
+intellisearch uninstall --global
 ```
 
-Files are automatically copied to `~/.config/opencode/skills/intellisearch/` and `~/.config/opencode/commands/intellisearch.md`
+### Scope Detection
 
-**Local Installation:**
+The CLI automatically detects the installation scope:
+
+- **Project install**: `.opencode/` (detected by `package.json` in parent directories)
+- **Global install**: `~/.config/opencode/` (default if not in a project)
+- Use `--local` or `--global` to override auto-detection
+
+### Symlink vs Copy
+
+The CLI uses symlinks when possible:
+
+**Symlink (default):**
+- Auto-updates on package version bump
+- Saves disk space
+- Fallback to copy if unsupported (e.g., Windows permissions)
+
+**Copy (fallback):**
+- Self-contained
+- Works everywhere
+- Manual updates needed
+
+### CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `install` | Install (auto-detects scope) |
+| `install --local` | Force install locally to .opencode/ |
+| `install --global` | Force install globally to ~/.config/opencode/ |
+| `uninstall` | Uninstall (auto-detects scope) |
+| `uninstall --local` | Force uninstall from .opencode/ |
+| `uninstall --global` | Force uninstall from ~/.config/opencode/ |
+| `--help, -h` | Show help message |
+
+### OPENCODE_CONFIG_DIR Support
+
+The CLI respects the `OPENCODE_CONFIG_DIR` environment variable:
+
 ```bash
-cd your-project
-bun install opencode-intellisearch
+export OPENCODE_CONFIG_DIR=/path/to/my/config-directory
+intellisearch install --global
 ```
 
-Files are automatically copied to `.opencode/skills/intellisearch/` and `.opencode/commands/intellisearch.md`
-
-### How It Works
-
-- Package manager installs the package
-- Post-install script detects if global or local
-- Files copied to appropriate location
-- OpenCode discovers skills/commands automatically
+If set, global installs will use this directory instead of `~/.config/opencode/`.
 
 ### File Locations
 
@@ -130,7 +170,7 @@ Files are automatically copied to `.opencode/skills/intellisearch/` and `.openco
 
 **Local:**
 ```
-./.opencode/
+.opencode/
 ├── skills/
 │   └── intellisearch/
 │       ├── SKILL.md
@@ -142,67 +182,11 @@ Files are automatically copied to `.opencode/skills/intellisearch/` and `.openco
 ### Pros & Cons
 
 **Pros:**
-- Automatic file placement
-- Works both globally and locally
-- OpenCode discovers files automatically
-- No manual configuration needed
-
-**Cons:**
-- Creates `node_modules/` in source directory (ignored by git)
-- Files duplicated if using multiple methods
-
-## Option 3: Manual CLI
-
-**Best for**: Users who want full control and manual verification
-
-### Installation Steps
-
-**Global:**
-```bash
-bun install -g opencode-intellisearch
-intellisearch install
-```
-
-**Local:**
-```bash
-cd your-project
-bun install opencode-intellisearch
-intellisearch install --local
-```
-
-**Uninstall:**
-```bash
-# Global
-intellisearch uninstall
-
-# Local
-intellisearch uninstall --local
-```
-
-**Help:**
-```bash
-intellisearch --help
-```
-
-### CLI Commands
-
-| Command | Description |
-|---------|-------------|
-| `install` | Install globally to ~/.config/opencode/ |
-| `install --local` | Install locally to .opencode/ |
-| `install --global` | Force global install |
-| `uninstall` | Uninstall from ~/.config/opencode/ |
-| `uninstall --local` | Uninstall from .opencode/ |
-| `uninstall --global` | Force global uninstall |
-| `--help, -h` | Show help message |
-
-### Pros & Cons
-
-**Pros:**
 - Full control over installation
 - Explicit file copying verification
 - Can use for testing/development
 - Clear success/error messages
+- Files in `.opencode/` directory
 
 **Cons:**
 - Requires manual command after package install
@@ -216,17 +200,12 @@ intellisearch --help
 - You don't need files in `.opencode/` directory
 - You only use one OpenCode project
 
-### Choose Auto-Install (Option 2) If:
-- You want automatic file placement
-- You want to see installation confirmation
-- You want files in `.opencode/` directory
-- You want to switch between local/global easily
-
-### Choose Manual CLI (Option 3) If:
+### Choose Manual CLI (Option 2) If:
 - You want full control
 - You're developing/testing the extension
-- You need to verify file placement
-- You want to troubleshoot installation issues
+- You need files in `.opencode/` directory
+- You want to verify file placement
+- You need to troubleshoot installation issues
 
 ## MCP Server Setup
 
@@ -364,15 +343,18 @@ Or uninstall package:
 bun remove -g opencode-intellisearch
 ```
 
-### Option 2: Auto-Install Method
+### Option 2: Manual Method
 
 **CLI:**
 ```bash
-# Global
+# Uninstall (auto-detects scope)
 intellisearch uninstall
 
-# Local
+# Force project uninstall
 intellisearch uninstall --local
+
+# Force global uninstall
+intellisearch uninstall --global
 ```
 
 **Or Bun:**
@@ -385,10 +367,6 @@ Files are automatically removed from:
 - `~/.config/opencode/commands/intellisearch.md`
 - Or `.opencode/skills/intellisearch/`
 - Or `.opencode/commands/intellisearch.md`
-
-### Option 3: Manual Method
-
-Files are automatically removed by the CLI command.
 
 ### Manual Removal
 
@@ -456,6 +434,16 @@ sudo npm install -g opencode-intellisearch
 1. Run `bun install -g opencode-intellisearch` to install CLI
 2. Verify installation completed successfully
 3. Try using full path: `~/.bun/install/global/bin/intellisearch`
+4. On Windows, check that the bin directory is in your PATH
+
+#### "Symlink creation failed" warning
+
+This is normal on Windows if symlinks are not enabled:
+- The CLI will automatically fall back to copying files
+- Both methods work identically from OpenCode's perspective
+- To enable symlinks on Windows (requires Developer Mode):
+  1. Open "Developer Mode" in Windows Settings
+  2. Restart terminal and try again
 
 ### MCP Server Issues
 
