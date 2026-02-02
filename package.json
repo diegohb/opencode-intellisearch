@@ -1,6 +1,6 @@
 {
   "name": "opencode-intellisearch",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Intelligent web search routing for OpenCode with automatic tool selection, graceful fallbacks, and memory caching",
   "type": "module",
   "main": "dist/index.js",
