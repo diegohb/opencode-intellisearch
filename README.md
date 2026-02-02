@@ -10,17 +10,31 @@ Intelligent web search routing for OpenCode with automatic tool selection, grace
 - **Graceful Fallbacks**: Falls back through DuckDuckGo and webfetch when primary tools unavailable
 - **Memory Caching**: Caches search results for faster follow-up queries (optional)
 - **Cross-Platform**: Works on Windows, macOS, and Linux
+- **Package Manager Agnostic**: Works with Bun (primary) and npm (fallback)
 
 ## 🚀 Quick Start
 
 ### Install Globally (Recommended)
 
+**Bun (Primary - Recommended):**
+```bash
+bun install -g opencode-intellisearch
+```
+
+**npm (Alternative):**
 ```bash
 npm install -g opencode-intellisearch
 ```
 
 ### Install Locally (Project-Specific)
 
+**Bunx (Primary):**
+```bash
+cd your-project
+bunx opencode-intellisearch
+```
+
+**npx (Alternative):**
 ```bash
 cd your-project
 npx opencode-intellisearch
@@ -36,6 +50,11 @@ npx opencode-intellisearch
 ```
 
 ## 🔧 Requirements
+
+### Runtime
+
+- **Bun** (Primary) - Download from [bun.sh](https://bun.sh/)
+- **Node.js** (Alternative) - Download from [nodejs.org/](https://nodejs.org/) version 18+
 
 ### MCP Servers
 
@@ -101,11 +120,21 @@ Tertiary (webfetch)
 
 ### Installation Issues
 
+**"bun command not found" - Bun is not installed:**
+- Install Bun from [bun.sh](https://bun.sh/):
+  ```bash
+  curl -fsSL https://bun.sh/install | bash
+  ```
+
 **"npm command not found" - npm is not installed:**
 - Install Node.js from [nodejs.org](https://nodejs.org/)
 
 **"Permission denied" - Cannot install globally:**
 ```bash
+# Bun
+sudo bun install -g opencode-intellisearch
+
+# npm
 sudo npm install -g opencode-intellisearch
 ```
 Or configure npm to install in your home directory:
@@ -133,7 +162,7 @@ npm install -g opencode-intellisearch
 
 ## 🔧 Manual Installation
 
-If npm installation fails, manually copy files from `dist/` directory:
+If package manager installation fails, manually copy files from `dist/` directory:
 
 **Global:**
 ```bash
@@ -151,14 +180,14 @@ cp dist/commands/* .opencode/commands/
 
 ## 🗑️  Uninstall
 
-**Global:**
+**Bun:**
 ```bash
-npm uninstall -g opencode-intellisearch
+bun remove -g opencode-intellisearch
 ```
 
-**Local:**
+**npm:**
 ```bash
-npm uninstall opencode-intellisearch
+npm uninstall -g opencode-intellisearch
 ```
 
 Or manually remove files:
@@ -186,3 +215,4 @@ Built with:
 - [Exa AI](https://exa.ai) - Neural search engine
 - [deepWiki](https://docs.opencod.ai) - Repository intelligence
 - [OpenCode](https://opencode.ai) - AI coding environment
+- [Bun](https://bun.sh) - Fast JavaScript runtime

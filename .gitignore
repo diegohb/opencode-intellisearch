@@ -6,6 +6,10 @@ dist/
 build/
 *.tsbuildinfo
 
+# Lock files
+bun.lockb
+package-lock.json
+
 # IDE
 .vscode/
 .idea/

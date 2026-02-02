@@ -17,8 +17,8 @@ Detailed installation instructions for intellisearch extension for OpenCode.
 
 ### Required
 
-- [Node.js](https://nodejs.org/) version 18 or higher
-- [npm](https://www.npmjs.com/) (comes with Node.js)
+- **Bun** (Primary) - Download from [bun.sh](https://bun.sh/)
+- **Node.js & npm** (Alternative) - Download from [nodejs.org/](https://nodejs.org/) version 18+
 - [OpenCode](https://opencode.ai) installed and running
 - Exa API key - Get from [Exa Dashboard](https://dashboard.exa.ai)
 - deepWiki access - Register at [docs.opencod.ai](https://docs.opencod.ai)
@@ -30,45 +30,51 @@ Detailed installation instructions for intellisearch extension for OpenCode.
 
 ## Installation Methods
 
-### Method 1: npm Global Install (Recommended)
+### Method 1: Bun Global Install (Recommended)
 
 Install globally to make intellisearch available to all OpenCode projects:
+
+```bash
+bun install -g opencode-intellisearch
+```
+
+This will automatically:
+1. Install the package globally
+2. Detect package manager (Bun/npm)
+3. Copy skill files to `~/.config/opencode/skills/intellisearch/`
+4. Copy command files to `~/.config/opencode/commands/`
+5. Verify installation
+
+### Method 2: Bunx Local Install (Project-Specific)
+
+Install only for current project without global installation:
+
+```bash
+cd your-project
+bunx opencode-intellisearch
+```
+
+This will:
+1. Download and run the package
+2. Detect package manager
+3. Copy skill files to `.opencode/skills/intellisearch/`
+4. Copy command files to `.opencode/commands/`
+5. Verify installation
+
+### Method 3: npm Global Install (Alternative)
 
 ```bash
 npm install -g opencode-intellisearch
 ```
 
-This will automatically:
-1. Install the package globally
-2. Copy skill files to `~/.config/opencode/skills/intellisearch/`
-3. Copy command files to `~/.config/opencode/commands/`
-4. Verify installation
-
-### Method 2: npx Local Install (Project-Specific)
-
-Install only for current project without global installation:
+### Method 4: npx Local Install (Alternative)
 
 ```bash
 cd your-project
 npx opencode-intellisearch
 ```
 
-This will:
-1. Download and run the package
-2. Copy skill files to `.opencode/skills/intellisearch/`
-3. Copy command files to `.opencode/commands/`
-4. Verify installation
-
-### Method 3: npm Local Install
-
-Install to current project with npm:
-
-```bash
-cd your-project
-npm install opencode-intellisearch --save-dev
-```
-
-### Method 4: Manual Installation
+### Method 5: Manual Installation
 
 See [Manual Installation](#manual-installation) section below.
 
@@ -76,13 +82,22 @@ See [Manual Installation](#manual-installation) section below.
 
 Global installation makes intellisearch available to all OpenCode projects.
 
-### Using npm
+### Using Bun (Primary)
+
+```bash
+# Install globally
+bun install -g opencode-intellisearch
+
+# Installation is automatic - package manager detection and file copying happens on install
+```
+
+### Using npm (Alternative)
 
 ```bash
 # Install globally
 npm install -g opencode-intellisearch
 
-# Installation is automatic - files are copied on install
+# Installation is automatic - same behavior as Bun
 ```
 
 ### Installation Locations
@@ -102,13 +117,17 @@ npm install -g opencode-intellisearch
 If you get a permission error:
 
 ```bash
-# Linux/macOS
+# Bun
+sudo bun install -g opencode-intellisearch
+
+# npm
 sudo npm install -g opencode-intellisearch
 ```
 
-Or configure npm to install in your home directory:
+Or configure your package manager to install in your home directory:
 
 ```bash
+# npm configuration
 mkdir -p ~/.npm-global
 npm config set prefix '~/.npm-global'
 export PATH="~/.npm-global/bin:$PATH"
@@ -119,7 +138,17 @@ npm install -g opencode-intellisearch
 
 Local installation makes intellisearch available only to current project.
 
-### Using npx (Recommended)
+### Using Bunx (Recommended)
+
+```bash
+# Navigate to your project
+cd your-project
+
+# Run bunx to install locally
+bunx opencode-intellisearch
+```
+
+### Using npx (Alternative)
 
 ```bash
 # Navigate to your project
@@ -127,16 +156,6 @@ cd your-project
 
 # Run npx to install locally
 npx opencode-intellisearch
-```
-
-### Using npm
-
-```bash
-# Navigate to your project
-cd your-project
-
-# Install locally
-npm install opencode-intellisearch --save-dev
 ```
 
 ### Installation Locations
@@ -266,7 +285,19 @@ Verify `exa` and `deepwiki` servers are running.
 
 ## Uninstallation
 
-### Using npm
+### Using Bun (Primary)
+
+**Global:**
+```bash
+bun remove -g opencode-intellisearch
+```
+
+**Local:**
+```bash
+bun remove opencode-intellisearch
+```
+
+### Using npm (Alternative)
 
 **Global:**
 ```bash
@@ -278,9 +309,10 @@ npm uninstall -g opencode-intellisearch
 npm uninstall opencode-intellisearch
 ```
 
-The uninstall script will automatically remove:
-- `~/.config/opencode/skills/intellisearch/` or `.opencode/skills/intellisearch/`
-- `~/.config/opencode/commands/intellisearch.md` or `.opencode/commands/intellisearch.md`
+The uninstall script will automatically:
+- Detect the package manager
+- Remove `~/.config/opencode/skills/intellisearch/` or `.opencode/skills/intellisearch/`
+- Remove `~/.config/opencode/commands/intellisearch.md` or `.opencode/commands/intellisearch.md`
 
 ### Manual Uninstallation
 
@@ -312,14 +344,25 @@ Remove-Item -Force .opencode\commands\intellisearch.md
 
 ### Installation Issues
 
+#### "bun command not found"
+
+Install Bun from [bun.sh](https://bun.sh/):
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
 #### "npm command not found"
 
-Node.js and npm are not installed. Download from [nodejs.org](https://nodejs.org/).
+Install Node.js from [nodejs.org](https://nodejs.org/).
 
 #### "Permission denied" when installing globally
 
 **Linux/macOS:**
 ```bash
+# Bun
+sudo bun install -g opencode-intellisearch
+
+# npm
 sudo npm install -g opencode-intellisearch
 ```
 
@@ -331,16 +374,15 @@ export PATH="~/.npm-global/bin:$PATH"
 npm install -g opencode-intellisearch
 ```
 
-**Windows:** Run as Administrator, or configure npm directory:
-```powershell
-npm config set prefix "%APPDATA%\npm"
-npm install -g opencode-intellisearch
-```
+**Windows:** Run as Administrator
 
 #### "dist directory not found"
 
 The package wasn't built. Run:
 ```bash
+bun run build
+
+# Or with npm
 npm run build
 ```
 

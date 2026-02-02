@@ -17,7 +17,7 @@ Thank you for your interest in contributing to intellisearch!
 ### Prerequisites
 
 - [Git](https://git-scm.com/)
-- [Bun](https://bun.sh/) or [Node.js](https://nodejs.org/)
+- [Bun](https://bun.sh/) (Primary) or [Node.js](https://nodejs.org/) (Alternative)
 - OpenCode installed and configured
 - Text editor (VS Code recommended)
 - Bash or PowerShell terminal
@@ -37,13 +37,19 @@ intellisearch/
 │   │           └── routing-workflows.md
 │   ├── commands/
 │   │   └── intellisearch.md       # TUI command definition
-│   ├── install.sh                  # Bash installer
-│   ├── install.ps1                 # PowerShell installer
-│   ├── uninstall.sh                # Bash uninstaller
-│   └── uninstall.ps1              # PowerShell uninstaller
-├── LICENSE
-├── CHANGELOG.md
-└── README.md
+│   ├── README.md
+│   ├── INSTALLATION.md
+│   ├── CONTRIBUTING.md
+│   ├── CHANGELOG.md
+│   └── LICENSE
+├── scripts/
+│   ├── build.js                 # Build script (source → dist)
+│   ├── install.js               # Installation script with PM detection
+│   ├── uninstall.js             # Uninstallation script
+│   └── detect-pm.js            # Package manager detection
+├── dist/                        # Distribution files (generated)
+├── package.json                 # npm package configuration
+└── README.md                    # Main documentation
 ```
 
 ## Development Setup
@@ -51,33 +57,45 @@ intellisearch/
 ### 1. Fork and Clone
 
 ```bash
-# Fork the repository on GitHub
+# Fork repository on GitHub
 # Clone your fork
 git clone https://github.com/yourusername/opencode-intellisearch.git
 cd opencode-intellisearch
 ```
 
-### 2. Install Dependencies
+### 2. Build Distribution Files
 
-No npm dependencies required for this extension. Skills and commands are markdown-based.
+The package uses a `dist/` directory for distribution. Run the build script:
+
+```bash
+# Using Bun (Primary)
+bun run build
+
+# Using npm (Alternative)
+npm run build
+```
+
+This copies all files from `source/` to `dist/`.
 
 ### 3. Test Installation Locally
 
 ```bash
-# Local test installation
-./source/install.sh --local
-```
+# Build dist first
+bun run build
 
-```powershell
-# PowerShell
-.\source\install.ps1 -Local
+# Test installation (uses package manager detection)
+bun run install
+
+# Or with npm
+npm run build
+npm run install
 ```
 
 ### 4. Verify in OpenCode
 
-1. Start OpenCode in the current directory
+1. Start OpenCode in current directory
 2. Test the command: `/intellisearch test query`
-3. Verify skill is loaded by checking `opencode.json`
+3. Verify skill is loaded by checking OpenCode's skill list
 
 ## Making Changes
 
@@ -153,38 +171,45 @@ Add detailed information to reference files:
 
 **Documentation Style:**
 - Use clear headings
-- Include code examples
+- Include code examples for all APIs/tools
 - Provide context for each section
 - Link between related files
 
-### Installation Script Development
+### Script Development
 
-**Bash Script Guidelines:**
-- Use `set -e` for error handling
-- Check for existing installations
-- Provide user prompts before overwriting
-- Verify installation success
-- Use emoji and colors for output
-- Support `--help` flag
-- Use `$XDG_CONFIG_HOME` if set
+**Package Manager Detection**
 
-**PowerShell Script Guidelines:**
-- Use `#Requires -Version 5.1` or higher
-- Use parameter binding with `[Parameter()]`
-- Check for existing installations
-- Provide user prompts before overwriting
-- Verify installation success
-- Use `Write-Host` with colors
-- Support `-Help` parameter
-- Handle `$env:XDG_CONFIG_HOME`
+All scripts include automatic package manager detection via `detect-pm.js`:
+- Detects Bun or npm at runtime
+- Displays appropriate messages
+- Works identically with both package managers
+
+**Build Script Guidelines:**
+- Detect package manager and show in output
+- Copy source files to `dist/`
+- Show progress with emoji indicators
+- Reference both `bun` and `npm` in help text
+
+**Install/Uninstall Script Guidelines:**
+- Use `detect-pm.js` to detect package manager
+- Display which package manager is being used
+- Check for `dist/` directory and show PM-specific error message
+- Show which PM detected in output
+- Handle XDG_CONFIG_HOME environment variable
 
 ## Testing
 
 ### Test Locally
 
 ```bash
-# After making changes, test installation
-./source/install.sh --local
+# After making changes, build dist
+bun run build
+
+# Or with npm
+npm run build
+
+# Test installation
+bun run install
 
 # Verify files are copied
 ls -la .opencode/skills/intellisearch/
@@ -196,28 +221,18 @@ ls -la .opencode/commands/intellisearch.md
 
 ### Test Installation Scripts
 
-**Bash:**
+**Test both Bun and npm:**
+
 ```bash
-# Test different scenarios
-./source/install.sh --global
-./source/install.sh --local
-./source/install.sh --force
-./source/install.sh --help
+# Test with Bun
+bun run build
+bun run install
+bun run uninstall
 
-# Test uninstall
-./source/uninstall.sh
-./source/uninstall.sh --force
-```
-
-**PowerShell:**
-```powershell
-# Test different scenarios
-.\source\install.ps1 -Global
-.\source\install.ps1 -Local
-.\source\install.ps1 -Force
-
-# Test uninstall
-.\source\uninstall.ps1
+# Test with npm
+npm run build
+npm run install
+npm run uninstall
 ```
 
 ### Test Cross-Platform
@@ -226,10 +241,11 @@ ls -la .opencode/commands/intellisearch.md
 - Test global and local installations
 - Test with and without existing installations
 - Test with different OpenCode versions
+- Test both Bun and npm package managers
 
 ### Test Skill Behavior
 
-1. Install the skill
+1. Install skill
 2. Create test queries for each category:
    - Code/technology queries
    - News queries
@@ -238,6 +254,7 @@ ls -la .opencode/commands/intellisearch.md
    - Research queries
 3. Verify routing decisions
 4. Check fallback behavior when MCP servers unavailable
+5. Test memory caching (if configured)
 
 ## Submitting Changes
 
@@ -249,7 +266,7 @@ git checkout -b feature/your-feature-name
 
 ### 2. Make Your Changes
 
-- Edit files as needed
+- Edit files in `source/` directory
 - Test thoroughly
 - Update documentation
 - Update CHANGELOG.md
@@ -270,13 +287,21 @@ git commit -m "Add new routing feature
 - First line: 50 chars or less
 - Subsequent lines: more detail
 
-### 4. Push to Your Fork
+### 4. Build Distribution Files
+
+Before committing, ensure `dist/` is up to date:
+
+```bash
+bun run build
+```
+
+### 5. Push to Your Fork
 
 ```bash
 git push origin feature/your-feature-name
 ```
 
-### 5. Create Pull Request
+### 6. Create Pull Request
 
 - Go to GitHub repository
 - Click "Pull Requests"
@@ -285,11 +310,12 @@ git push origin feature/your-feature-name
 - Fill in PR template
 - Submit for review
 
-### 6. Address Feedback
+### 7. Address Feedback
 
 - Respond to review comments
 - Make requested changes
 - Push updates to your branch
+- Rebuild `dist/` if needed
 
 ## Code Style
 
@@ -335,21 +361,19 @@ temperature: 0.2
 - Link to related documentation
 - Keep reference information up-to-date
 
-### Bash Scripts
+### JavaScript/TypeScript Files
 
-- Use `set -e` for error handling
-- Check for command success with `$?`
-- Quote all variable expansions
-- Use `[ ]` for tests, `[[ ]]` for complex conditions
+- Use standard Node.js APIs (fs, path) - compatible with both Bun and Node.js
+- Use `require()` (works in both Bun and Node.js)
+- Use error handling with try/catch where needed
 - Add comments for complex logic
 
-### PowerShell Scripts
+### package.json
 
-- Use parameter binding
-- Test paths with `Test-Path`
-- Use `Write-Host` with `-ForegroundColor` for colors
-- Use `Join-Path` for path construction
-- Add comments for complex logic
+- Primary scripts should use `bun` command
+- Keep npm scripts prefixed with `npm:`
+- Include `bun` field for Bun-specific config
+- Keep `engines.node` for npm users
 
 ## Reporting Issues
 
@@ -360,8 +384,9 @@ When reporting bugs, include:
 1. **Environment:**
    - OS and version
    - OpenCode version
-   - Bash/PowerShell version
+   - Package manager (Bun/npm)
    - Installation type (global/local)
+   - Scripts output with PM detection
 
 2. **Steps to Reproduce:**
    - Clear, numbered steps
@@ -416,7 +441,7 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 - Be respectful and inclusive
 - Provide constructive feedback
-- Focus on what is best for the community
+- Focus on what is best for community
 - Show empathy towards other contributors
 
 Thank you for contributing to intellisearch! 🎉

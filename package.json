@@ -6,18 +6,24 @@
   "bin": {
     "intellisearch": "./scripts/install.js"
   },
+  "bun": {
+    "exports": "./dist/index.js"
+  },
   "scripts": {
     "build": "node scripts/build.js",
     "install": "node scripts/install.js",
-    "install:global": "npm install -g",
-    "install:local": "npm install --local",
+    "install:global": "bun install -g",
+    "install:local": "bun install",
     "uninstall": "node scripts/uninstall.js",
-    "uninstall:local": "npm run uninstall --local",
-    "uninstall:global": "npm run uninstall",
-    "prepack": "npm run build",
+    "uninstall:local": "bun run uninstall",
+    "uninstall:global": "bun run uninstall",
+    "prepack": "node scripts/build.js",
     "postinstall": "node scripts/install.js",
     "preuninstall": "node scripts/uninstall.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "node scripts/build.js",
+    "npm:install": "npm install -g",
+    "npm:install:local": "npm install",
+    "npm:uninstall": "npm run uninstall"
   },
   "files": [
     "dist/**/*",
@@ -38,6 +44,9 @@
     "exa",
     "deepwiki",
     "duckduckgo",
+    "bun",
+    "bunx",
+    "npm",
     "npx"
   ],
   "author": "intellisearch contributors",

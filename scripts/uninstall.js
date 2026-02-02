@@ -1,5 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const { detectPackageManager } = require('./detect-pm');
+
+const pm = detectPackageManager();
 
 function getOpenCodeDir(isGlobal) {
   if (isGlobal) {
@@ -32,6 +35,7 @@ function uninstall(isGlobal = true) {
   const commandsDir = path.join(openCodeDir, 'commands');
 
   console.log('🗑️  Uninstalling intellisearch...');
+  console.log(`   Using: ${pm}`);
   console.log('');
 
   const intelliSearchSkillsDir = path.join(skillsDir, 'intellisearch');

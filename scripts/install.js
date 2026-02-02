@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
+const { detectPackageManager } = require('./detect-pm');
 
 const DIST_DIR = path.join(__dirname, '..', 'dist');
+const pm = detectPackageManager();
 
 function getOpenCodeDir(isGlobal) {
   if (isGlobal) {
@@ -37,12 +39,13 @@ function install(isGlobal = true) {
   const commandsDir = path.join(openCodeDir, 'commands');
 
   if (!fs.existsSync(DIST_DIR)) {
-    console.error('❌ dist directory not found. Run "npm run build" first.');
+    console.error(`❌ dist directory not found. Run "${pm} run build" first.`);
     process.exit(1);
   }
 
   console.log(`📦 Installing intellisearch ${isGlobal ? 'globally' : 'locally'}...`);
   console.log(`   Target: ${openCodeDir}`);
+  console.log(`   Using: ${pm}`);
   console.log('');
 
   if (!fs.existsSync(openCodeDir)) {

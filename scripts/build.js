@@ -1,10 +1,14 @@
 const fs = require('fs');
 const path = require('path');
+const { detectPackageManager } = require('./detect-pm');
 
 const SOURCE_DIR = path.join(__dirname, '..', 'source');
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 
+const pm = detectPackageManager();
+
 console.log('🔨 Building intellisearch...');
+console.log(`📦 Using package manager: ${pm}`);
 
 // Ensure dist directory exists
 if (!fs.existsSync(DIST_DIR)) {
@@ -44,6 +48,6 @@ console.log('');
 console.log('📦 Distribution files created in dist/');
 console.log('');
 console.log('📝 Next steps:');
-console.log('   - npm run install:global  (install globally)');
-console.log('   - npm run install:local   (install locally)');
-console.log('   - ./dist/install.sh --help  (install with options)');
+console.log(`   - ${pm} run install:global  (install globally)`);
+console.log(`   - ${pm} run install:local   (install locally)`);
+console.log(`   - ${pm === 'bun' ? 'bunx' : 'npx'} opencode-intellisearch  (use without installing)`);
