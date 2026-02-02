@@ -1,0 +1,61 @@
+{
+  "name": "opencode-intellisearch",
+  "version": "1.0.0",
+  "description": "Intelligent web search routing for OpenCode with automatic tool selection, graceful fallbacks, and memory caching",
+  "main": "dist/index.js",
+  "bin": {
+    "intellisearch": "./scripts/install.js"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "install": "node scripts/install.js",
+    "install:global": "npm install -g",
+    "install:local": "npm install --local",
+    "uninstall": "node scripts/uninstall.js",
+    "uninstall:local": "npm run uninstall --local",
+    "uninstall:global": "npm run uninstall",
+    "prepack": "npm run build",
+    "postinstall": "node scripts/install.js",
+    "preuninstall": "node scripts/uninstall.js",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist/**/*",
+    "scripts/**/*",
+    "LICENSE",
+    "README.md",
+    "INSTALLATION.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "opencode",
+    "extension",
+    "skill",
+    "command",
+    "search",
+    "intellisearch",
+    "exa",
+    "deepwiki",
+    "duckduckgo",
+    "npx"
+  ],
+  "author": "intellisearch contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/opencode-intellisearch"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/opencode-intellisearch/issues"
+  },
+  "homepage": "https://github.com/yourusername/opencode-intellisearch#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ]
+}
