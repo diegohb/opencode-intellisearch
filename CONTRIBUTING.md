@@ -6,6 +6,7 @@ Thank you for your interest in contributing to intellisearch!
 
 - [Getting Started](#getting-started)
 - [Development Setup](#development-setup)
+- [Package Structure](#package-structure)
 - [Making Changes](#making-changes)
 - [Testing](#testing)
 - [Submitting Changes](#submitting-changes)
@@ -21,36 +22,6 @@ Thank you for your interest in contributing to intellisearch!
 - OpenCode installed and configured
 - Text editor (VS Code recommended)
 - Bash or PowerShell terminal
-
-### Repository Structure
-
-```
-intellisearch/
-├── source/
-│   ├── skills/
-│   │   └── intellisearch/
-│   │       ├── SKILL.md              # Main skill definition
-│   │       └── references/          # Supporting documentation
-│   │           ├── exa-tools.md
-│   │           ├── deepwiki-tools.md
-│   │           ├── fallback-tools.md
-│   │           └── routing-workflows.md
-│   ├── commands/
-│   │   └── intellisearch.md       # TUI command definition
-│   ├── README.md
-│   ├── INSTALLATION.md
-│   ├── CONTRIBUTING.md
-│   ├── CHANGELOG.md
-│   └── LICENSE
-├── scripts/
-│   ├── build.js                 # Build script (source → dist)
-│   ├── install.js               # Installation script with PM detection
-│   ├── uninstall.js             # Uninstallation script
-│   └── detect-pm.js            # Package manager detection
-├── dist/                        # Distribution files (generated)
-├── package.json                 # npm package configuration
-└── README.md                    # Main documentation
-```
 
 ## Development Setup
 
@@ -77,25 +48,34 @@ npm run build
 
 This copies all files from `source/` to `dist/`.
 
-### 3. Test Installation Locally
+## Package Structure
 
-```bash
-# Build dist first
-bun run build
-
-# Test installation (uses package manager detection)
-bun run install
-
-# Or with npm
-npm run build
-npm run install
 ```
-
-### 4. Verify in OpenCode
-
-1. Start OpenCode in current directory
-2. Test the command: `/intellisearch test query`
-3. Verify skill is loaded by checking OpenCode's skill list
+opencode-intellisearch/
+├── source/
+│   ├── skills/
+│   │   └── intellisearch/
+│   │       ├── SKILL.md              # Main skill definition
+│   │       └── references/          # Supporting documentation
+│   │           ├── exa-tools.md
+│   │           ├── deepwiki-tools.md
+│   │           ├── fallback-tools.md
+│   │           └── routing-workflows.md
+│   ├── commands/
+│   │   └── intellisearch.md       # TUI command definition
+│   ├── README.md
+│   ├── INSTALLATION.md
+│   ├── CONTRIBUTING.md
+│   ├── CHANGELOG.md
+│   └── LICENSE
+├── scripts/
+│   └── build.js                 # Build script (source → dist)
+├── bin/
+│   └── cli.js                     # Manual install/uninstall CLI
+├── dist/                        # Distribution files (generated)
+├── package.json                 # npm package configuration
+└── README.md                    # Main documentation
+```
 
 ## Making Changes
 
@@ -133,7 +113,7 @@ metadata:
 - Use gerund form for skill names (e.g., "web-searching")
 - Write descriptions in third person
 - Keep primary content concise (~150 tokens)
-- Use references/ directory for detailed information
+- Use `references/` directory for detailed information
 - Follow progressive disclosure pattern
 
 ### Command Development
@@ -158,44 +138,27 @@ Use $ARGUMENTS for user input.
 - Keep temperature low (0.1-0.3) for deterministic results
 - Use clear, descriptive frontmatter
 - Provide examples in command template
-- Handle edge cases in the template
+- Handle edge cases in template
 
-### Reference Documentation
+### CLI Development
 
-Add detailed information to reference files:
+The manual CLI is located at `bin/cli.js`.
 
-- `exa-tools.md` - Exa MCP tool documentation
-- `deepwiki-tools.md` - deepWiki MCP tool documentation
-- `fallback-tools.md` - DuckDuckGo and webfetch documentation
-- `routing-workflows.md` - Decision trees and workflows
+**CLI Structure:**
 
-**Documentation Style:**
-- Use clear headings
-- Include code examples for all APIs/tools
-- Provide context for each section
-- Link between related files
+```javascript
+// Commands available: install, uninstall
+// Options: --local, --global, --help
 
-### Script Development
+// Usage: intellisearch <command> [options]
+```
 
-**Package Manager Detection**
+**Adding New CLI Commands:**
 
-All scripts include automatic package manager detection via `detect-pm.js`:
-- Detects Bun or npm at runtime
-- Displays appropriate messages
-- Works identically with both package managers
-
-**Build Script Guidelines:**
-- Detect package manager and show in output
-- Copy source files to `dist/`
-- Show progress with emoji indicators
-- Reference both `bun` and `npm` in help text
-
-**Install/Uninstall Script Guidelines:**
-- Use `detect-pm.js` to detect package manager
-- Display which package manager is being used
-- Check for `dist/` directory and show PM-specific error message
-- Show which PM detected in output
-- Handle XDG_CONFIG_HOME environment variable
+1. Add command handler to `bin/cli.js`
+2. Update help text in `showHelp()` function
+3. Document the command in README.md and INSTALLATION.md
+4. Test all command options
 
 ## Testing
 
@@ -205,34 +168,23 @@ All scripts include automatic package manager detection via `detect-pm.js`:
 # After making changes, build dist
 bun run build
 
-# Or with npm
-npm run build
+# Test CLI
+./bin/cli.js --help
+./bin/cli.js install --local
+./bin/cli.js uninstall --local
 
-# Test installation
-bun run install
+# Test package installation
+bun install -g opencode-intellisearch
 
 # Verify files are copied
 ls -la .opencode/skills/intellisearch/
 ls -la .opencode/commands/intellisearch.md
+# OR for global
+ls -la ~/.config/opencode/skills/intellisearch/
+ls -la ~/.config/opencode/commands/intellisearch.md
 
 # Test in OpenCode
 # Start OpenCode and run: /intellisearch test query
-```
-
-### Test Installation Scripts
-
-**Test both Bun and npm:**
-
-```bash
-# Test with Bun
-bun run build
-bun run install
-bun run uninstall
-
-# Test with npm
-npm run build
-npm run install
-npm run uninstall
 ```
 
 ### Test Cross-Platform
@@ -241,7 +193,7 @@ npm run uninstall
 - Test global and local installations
 - Test with and without existing installations
 - Test with different OpenCode versions
-- Test both Bun and npm package managers
+- Test with both Bun and npm
 
 ### Test Skill Behavior
 
@@ -353,27 +305,29 @@ temperature: 0.2
 ---
 ```
 
-### Documentation Files
+### JavaScript Files
 
-- Use clear, descriptive headings
-- Include code examples for all APIs/tools
-- Provide context and explanations
-- Link to related documentation
-- Keep reference information up-to-date
-
-### JavaScript/TypeScript Files
-
-- Use standard Node.js APIs (fs, path) - compatible with both Bun and Node.js
+- Use standard Node.js APIs (`fs`, `path`) - compatible with both Bun and Node.js
 - Use `require()` (works in both Bun and Node.js)
 - Use error handling with try/catch where needed
 - Add comments for complex logic
 
+### CLI Files
+
+- Use `#!/usr/bin/env node` shebang
+- Check command arguments from `process.argv[2]`
+- Provide clear error messages
+- Use emojis for output (✅, ❌, ℹ️)
+- Handle both `--local` and `--global` options
+- Show help on `--help` or `-h`
+
 ### package.json
 
-- Primary scripts should use `bun` command
-- Keep npm scripts prefixed with `npm:`
-- Include `bun` field for Bun-specific config
+- Keep `bun` field for Bun-specific config
+- Use `bin` field for CLI commands
+- Use `peerDependencies` for `@opencode-ai/plugin`
 - Keep `engines.node` for npm users
+- Keep both Bun and npm in keywords
 
 ## Reporting Issues
 
@@ -386,7 +340,7 @@ When reporting bugs, include:
    - OpenCode version
    - Package manager (Bun/npm)
    - Installation type (global/local)
-   - Scripts output with PM detection
+   - CLI command output
 
 2. **Steps to Reproduce:**
    - Clear, numbered steps
@@ -441,7 +395,7 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 - Be respectful and inclusive
 - Provide constructive feedback
-- Focus on what is best for community
+- Focus on what is best for the community
 - Show empathy towards other contributors
 
 Thank you for contributing to intellisearch! 🎉

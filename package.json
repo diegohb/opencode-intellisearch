@@ -4,30 +4,18 @@
   "description": "Intelligent web search routing for OpenCode with automatic tool selection, graceful fallbacks, and memory caching",
   "main": "dist/index.js",
   "bin": {
-    "intellisearch": "./scripts/install.js"
+    "intellisearch": "./bin/cli.js"
   },
   "bun": {
     "exports": "./dist/index.js"
   },
   "scripts": {
     "build": "node scripts/build.js",
-    "install": "node scripts/install.js",
-    "install:global": "bun install -g",
-    "install:local": "bun install",
-    "uninstall": "node scripts/uninstall.js",
-    "uninstall:local": "bun run uninstall",
-    "uninstall:global": "bun run uninstall",
-    "prepack": "node scripts/build.js",
-    "postinstall": "node scripts/install.js",
-    "preuninstall": "node scripts/uninstall.js",
-    "prepublishOnly": "node scripts/build.js",
-    "npm:install": "npm install -g",
-    "npm:install:local": "npm install",
-    "npm:uninstall": "npm run uninstall"
+    "prepack": "node scripts/build.js"
   },
   "files": [
     "dist/**/*",
-    "scripts/**/*",
+    "bin/**/*",
     "LICENSE",
     "README.md",
     "INSTALLATION.md",
@@ -59,6 +47,9 @@
     "url": "https://github.com/yourusername/opencode-intellisearch/issues"
   },
   "homepage": "https://github.com/yourusername/opencode-intellisearch#readme",
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=1.0.0"
+  },
   "engines": {
     "node": ">=18.0.0"
   },

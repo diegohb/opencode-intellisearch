@@ -4,7 +4,7 @@ Intelligent web search routing for OpenCode with automatic tool selection, grace
 
 ## ✨ Features
 
-- **Smart Routing**: Automatically selects the best tool (Exa, deepWiki, DuckDuckGo, or webfetch) based on query type
+- **Smart Routing**: Automatically selects best tool (Exa, deepWiki, DuckDuckGo, or webfetch) based on query type
 - **GitHub Repository Detection**: Checks for GitHub repos for code/technology queries and routes to deepWiki for authoritative answers
 - **Token Optimization**: Uses fast checks and highlights to minimize token usage
 - **Graceful Fallbacks**: Falls back through DuckDuckGo and webfetch when primary tools unavailable
@@ -12,32 +12,52 @@ Intelligent web search routing for OpenCode with automatic tool selection, grace
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 - **Package Manager Agnostic**: Works with Bun (primary) and npm (fallback)
 
-## 🚀 Quick Start
+## 🚀 Installation
 
-### Install Globally (Recommended)
+### Option 1: Plugin (Simplest - Recommended)
 
-**Bun (Primary - Recommended):**
+Add to `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-intellisearch"]
+}
+```
+
+OpenCode will automatically load the extension from `node_modules/`. No installation command needed.
+
+### Option 2: Auto-Install (Default)
+
+**Global Installation:**
 ```bash
 bun install -g opencode-intellisearch
 ```
 
-**npm (Alternative):**
-```bash
-npm install -g opencode-intellisearch
-```
-
-### Install Locally (Project-Specific)
-
-**Bunx (Primary):**
+**Local Installation:**
 ```bash
 cd your-project
-bunx opencode-intellisearch
+bun install opencode-intellisearch
 ```
 
-**npx (Alternative):**
+When installing locally, files will be automatically copied to `.opencode/skills/` and `.opencode/commands/`. OpenCode will discover them automatically.
+
+### Option 3: Manual CLI (Full Control)
+
 ```bash
-cd your-project
-npx opencode-intellisearch
+# Install globally
+bun install -g opencode-intellisearch
+intellisearch install
+
+# Install locally
+bun install opencode-intellisearch
+intellisearch install --local
+
+# Uninstall globally
+intellisearch uninstall
+
+# Uninstall locally
+intellisearch uninstall --local
 ```
 
 ## 📖 Usage
@@ -137,13 +157,6 @@ sudo bun install -g opencode-intellisearch
 # npm
 sudo npm install -g opencode-intellisearch
 ```
-Or configure npm to install in your home directory:
-```bash
-mkdir -p ~/.npm-global
-npm config set prefix '~/.npm-global'
-export PATH="~/.npm-global/bin:$PATH"
-npm install -g opencode-intellisearch
-```
 
 ### Search Issues
 
@@ -180,25 +193,25 @@ cp dist/commands/* .opencode/commands/
 
 ## 🗑️  Uninstall
 
-**Bun:**
-```bash
-bun remove -g opencode-intellisearch
+**Plugin Method:**
+Remove from `~/.config/opencode/opencode.json`:
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": []
+}
 ```
 
-**npm:**
-```bash
-npm uninstall -g opencode-intellisearch
-```
-
-Or manually remove files:
+**CLI Method:**
 ```bash
 # Global
-rm -rf ~/.config/opencode/skills/intellisearch
-rm -f ~/.config/opencode/commands/intellisearch.md
+intellisearch uninstall
 
 # Local
-rm -rf .opencode/skills/intellisearch
-rm -f .opencode/commands/intellisearch.md
+intellisearch uninstall --local
+
+# Bun remove
+bun remove -g opencode-intellisearch
 ```
 
 ## 📄 License

@@ -5,9 +5,10 @@ Detailed installation instructions for intellisearch extension for OpenCode.
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Installation Methods](#installation-methods)
-- [Global Installation](#global-installation)
-- [Local Installation](#local-installation)
+- [Installation Options](#installation-options)
+- [Option 1: Plugin](#option-1-plugin)
+- [Option 2: Auto-Install](#option-2-auto-install)
+- [Option 3: Manual CLI](#option-3-manual-cli)
 - [MCP Server Setup](#mcp-server-setup)
 - [Verification](#verification)
 - [Uninstallation](#uninstallation)
@@ -17,152 +18,215 @@ Detailed installation instructions for intellisearch extension for OpenCode.
 
 ### Required
 
-- **Bun** (Primary) - Download from [bun.sh](https://bun.sh/)
-- **Node.js & npm** (Alternative) - Download from [nodejs.org/](https://nodejs.org/) version 18+
 - [OpenCode](https://opencode.ai) installed and running
 - Exa API key - Get from [Exa Dashboard](https://dashboard.exa.ai)
 - deepWiki access - Register at [docs.opencod.ai](https://docs.opencod.ai)
 
-### Optional
+### Runtime
 
-- DuckDuckGo tools (for fallback search)
-- Memory tool (for query caching)
+- [Bun](https://bun.sh/) (Primary) - Fast JavaScript runtime
+- [Node.js](https://nodejs.org/) (Alternative) - Version 18+
 
-## Installation Methods
+## Installation Options
 
-### Method 1: Bun Global Install (Recommended)
+intellisearch offers three installation methods to suit different workflows:
 
-Install globally to make intellisearch available to all OpenCode projects:
+| Option | Simplicity | Control | Auto-Update | Local Support |
+|--------|--------------|----------|--------------|---------------|
+| 1. Plugin | ⭐⭐⭐ | ⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+| 2. Auto-Install | ⭐⭐⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐ |
+| 3. Manual CLI | ⭐⭐ | ⭐⭐⭐ | ⭐ | ⭐⭐⭐ |
 
+## Option 1: Plugin
+
+**Best for**: Users who want the simplest installation with automatic updates
+
+### Installation Steps
+
+1. Install the package (globally or locally):
+   ```bash
+   # Global
+   bun install -g opencode-intellisearch
+   
+   # Local
+   cd your-project
+   bun install opencode-intellisearch
+   ```
+
+2. Add to OpenCode config `~/.config/opencode/opencode.json`:
+   ```json
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "plugin": ["opencode-intellisearch"]
+   }
+   ```
+
+3. Restart OpenCode
+
+### How It Works
+
+- OpenCode loads the plugin directly from `node_modules/`
+- No file copying or manual installation needed
+- Automatic updates via `bun install -g` or `npm install -g`
+
+### File Locations
+
+- **Global**: `~/.bun/install/global/node_modules/opencode-intellisearch/`
+- **Local**: `./node_modules/opencode-intellisearch/`
+
+### Pros & Cons
+
+**Pros:**
+- Simplest installation method
+- Automatic updates via package manager
+- No file copying or configuration
+- Follows OpenCode conventions
+
+**Cons:**
+- Less control over installation
+- Files not in `.opencode/` directory (some users prefer this)
+- Cannot use for multiple OpenCode projects with one install
+
+## Option 2: Auto-Install
+
+**Best for**: Most users who want automatic file placement with control
+
+### Installation Steps
+
+**Global Installation:**
 ```bash
 bun install -g opencode-intellisearch
 ```
 
-This will automatically:
-1. Install the package globally
-2. Detect package manager (Bun/npm)
-3. Copy skill files to `~/.config/opencode/skills/intellisearch/`
-4. Copy command files to `~/.config/opencode/commands/`
-5. Verify installation
+Files are automatically copied to `~/.config/opencode/skills/intellisearch/` and `~/.config/opencode/commands/intellisearch.md`
 
-### Method 2: Bunx Local Install (Project-Specific)
-
-Install only for current project without global installation:
-
+**Local Installation:**
 ```bash
 cd your-project
-bunx opencode-intellisearch
+bun install opencode-intellisearch
 ```
 
-This will:
-1. Download and run the package
-2. Detect package manager
-3. Copy skill files to `.opencode/skills/intellisearch/`
-4. Copy command files to `.opencode/commands/`
-5. Verify installation
+Files are automatically copied to `.opencode/skills/intellisearch/` and `.opencode/commands/intellisearch.md`
 
-### Method 3: npm Global Install (Alternative)
+### How It Works
 
-```bash
-npm install -g opencode-intellisearch
+- Package manager installs the package
+- Post-install script detects if global or local
+- Files copied to appropriate location
+- OpenCode discovers skills/commands automatically
+
+### File Locations
+
+**Global:**
+```
+~/.config/opencode/
+├── skills/
+│   └── intellisearch/
+│       ├── SKILL.md
+│       └── references/
+└── commands/
+    └── intellisearch.md
 ```
 
-### Method 4: npx Local Install (Alternative)
-
-```bash
-cd your-project
-npx opencode-intellisearch
+**Local:**
+```
+./.opencode/
+├── skills/
+│   └── intellisearch/
+│       ├── SKILL.md
+│       └── references/
+└── commands/
+    └── intellisearch.md
 ```
 
-### Method 5: Manual Installation
+### Pros & Cons
 
-See [Manual Installation](#manual-installation) section below.
+**Pros:**
+- Automatic file placement
+- Works both globally and locally
+- OpenCode discovers files automatically
+- No manual configuration needed
 
-## Global Installation
+**Cons:**
+- Creates `node_modules/` in source directory (ignored by git)
+- Files duplicated if using multiple methods
 
-Global installation makes intellisearch available to all OpenCode projects.
+## Option 3: Manual CLI
 
-### Using Bun (Primary)
+**Best for**: Users who want full control and manual verification
 
+### Installation Steps
+
+**Global:**
 ```bash
-# Install globally
 bun install -g opencode-intellisearch
-
-# Installation is automatic - package manager detection and file copying happens on install
+intellisearch install
 ```
 
-### Using npm (Alternative)
-
+**Local:**
 ```bash
-# Install globally
-npm install -g opencode-intellisearch
-
-# Installation is automatic - same behavior as Bun
-```
-
-### Installation Locations
-
-**Linux/macOS:**
-- Config directory: `~/.config/opencode/` or `$XDG_CONFIG_HOME/opencode/`
-- Skills: `~/.config/opencode/skills/intellisearch/`
-- Commands: `~/.config/opencode/commands/intellisearch.md`
-
-**Windows:**
-- Config directory: `%USERPROFILE%\.config\opencode\`
-- Skills: `%USERPROFILE%\.config\opencode\skills\intellisearch\`
-- Commands: `%USERPROFILE%\.config\opencode\commands\intellisearch.md`
-
-### Permissions
-
-If you get a permission error:
-
-```bash
-# Bun
-sudo bun install -g opencode-intellisearch
-
-# npm
-sudo npm install -g opencode-intellisearch
-```
-
-Or configure your package manager to install in your home directory:
-
-```bash
-# npm configuration
-mkdir -p ~/.npm-global
-npm config set prefix '~/.npm-global'
-export PATH="~/.npm-global/bin:$PATH"
-npm install -g opencode-intellisearch
-```
-
-## Local Installation
-
-Local installation makes intellisearch available only to current project.
-
-### Using Bunx (Recommended)
-
-```bash
-# Navigate to your project
 cd your-project
-
-# Run bunx to install locally
-bunx opencode-intellisearch
+bun install opencode-intellisearch
+intellisearch install --local
 ```
 
-### Using npx (Alternative)
-
+**Uninstall:**
 ```bash
-# Navigate to your project
-cd your-project
+# Global
+intellisearch uninstall
 
-# Run npx to install locally
-npx opencode-intellisearch
+# Local
+intellisearch uninstall --local
 ```
 
-### Installation Locations
+**Help:**
+```bash
+intellisearch --help
+```
 
-**All Platforms:**
-- Skills: `./.opencode/skills/intellisearch/`
-- Commands: `./.opencode/commands/intellisearch.md`
+### CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `install` | Install globally to ~/.config/opencode/ |
+| `install --local` | Install locally to .opencode/ |
+| `install --global` | Force global install |
+| `uninstall` | Uninstall from ~/.config/opencode/ |
+| `uninstall --local` | Uninstall from .opencode/ |
+| `uninstall --global` | Force global uninstall |
+| `--help, -h` | Show help message |
+
+### Pros & Cons
+
+**Pros:**
+- Full control over installation
+- Explicit file copying verification
+- Can use for testing/development
+- Clear success/error messages
+
+**Cons:**
+- Requires manual command after package install
+- Extra step compared to plugin method
+
+## Which Option Should You Choose?
+
+### Choose Plugin (Option 1) If:
+- You want the simplest installation
+- You want automatic updates
+- You don't need files in `.opencode/` directory
+- You only use one OpenCode project
+
+### Choose Auto-Install (Option 2) If:
+- You want automatic file placement
+- You want to see installation confirmation
+- You want files in `.opencode/` directory
+- You want to switch between local/global easily
+
+### Choose Manual CLI (Option 3) If:
+- You want full control
+- You're developing/testing the extension
+- You need to verify file placement
+- You want to troubleshoot installation issues
 
 ## MCP Server Setup
 
@@ -285,36 +349,50 @@ Verify `exa` and `deepwiki` servers are running.
 
 ## Uninstallation
 
-### Using Bun (Primary)
+### Option 1: Plugin Method
 
-**Global:**
+Remove from `~/.config/opencode/opencode.json`:
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": []
+}
+```
+
+Or uninstall package:
 ```bash
 bun remove -g opencode-intellisearch
 ```
 
-**Local:**
+### Option 2: Auto-Install Method
+
+**CLI:**
 ```bash
-bun remove opencode-intellisearch
+# Global
+intellisearch uninstall
+
+# Local
+intellisearch uninstall --local
 ```
 
-### Using npm (Alternative)
-
-**Global:**
+**Or Bun:**
 ```bash
-npm uninstall -g opencode-intellisearch
+bun remove -g opencode-intellisearch
 ```
 
-**Local:**
-```bash
-npm uninstall opencode-intellisearch
-```
+Files are automatically removed from:
+- `~/.config/opencode/skills/intellisearch/`
+- `~/.config/opencode/commands/intellisearch.md`
+- Or `.opencode/skills/intellisearch/`
+- Or `.opencode/commands/intellisearch.md`
 
-The uninstall script will automatically:
-- Detect the package manager
-- Remove `~/.config/opencode/skills/intellisearch/` or `.opencode/skills/intellisearch/`
-- Remove `~/.config/opencode/commands/intellisearch.md` or `.opencode/commands/intellisearch.md`
+### Option 3: Manual Method
 
-### Manual Uninstallation
+Files are automatically removed by the CLI command.
+
+### Manual Removal
+
+If automated removal fails, manually remove files:
 
 **Global (Bash):**
 ```bash
@@ -357,7 +435,6 @@ Install Node.js from [nodejs.org](https://nodejs.org/).
 
 #### "Permission denied" when installing globally
 
-**Linux/macOS:**
 ```bash
 # Bun
 sudo bun install -g opencode-intellisearch
@@ -366,27 +443,19 @@ sudo bun install -g opencode-intellisearch
 sudo npm install -g opencode-intellisearch
 ```
 
-**Or configure npm to use your home directory:**
-```bash
-mkdir -p ~/.npm-global
-npm config set prefix '~/.npm-global'
-export PATH="~/.npm-global/bin:$PATH"
-npm install -g opencode-intellisearch
-```
+#### "Plugin not found" error
 
-**Windows:** Run as Administrator
+**Check:**
+1. Run `bun install -g opencode-intellisearch` to ensure installed
+2. Verify it's in `opencode.json` plugin list
+3. Restart OpenCode
 
-#### "dist directory not found"
+#### "intellisearch: command not found" error
 
-The package wasn't built. Run:
-```bash
-bun run build
-
-# Or with npm
-npm run build
-```
-
-Then try installing again.
+**Check:**
+1. Run `bun install -g opencode-intellisearch` to install CLI
+2. Verify installation completed successfully
+3. Try using full path: `~/.bun/install/global/bin/intellisearch`
 
 ### MCP Server Issues
 
