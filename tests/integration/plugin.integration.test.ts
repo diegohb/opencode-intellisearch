@@ -31,7 +31,7 @@ describe("integration", () => {
         directory: TEST_PROJECT_DIR,
       } as any);
 
-      await pluginInstance.config?.();
+      await pluginInstance.config?.({} as any);
 
       // Verify directory structure
       const opencodeDir = path.join(TEST_PROJECT_DIR, ".opencode");
@@ -56,7 +56,7 @@ describe("integration", () => {
         directory: TEST_PROJECT_DIR,
       } as any);
 
-      await pluginInstance.config?.();
+      await pluginInstance.config?.({} as any);
 
       // Verify skill file content
       const skillFile = path.join(TEST_PROJECT_DIR, ".opencode", "skills", "intellisearch", "SKILL.md");
@@ -76,7 +76,7 @@ describe("integration", () => {
         directory: TEST_PROJECT_DIR,
       } as any);
 
-      await pluginInstance.config?.();
+      await pluginInstance.config?.({} as any);
 
       // Verify command file content
       const commandFile = path.join(TEST_PROJECT_DIR, ".opencode", "commands", "intellisearch.md");
@@ -98,7 +98,7 @@ describe("integration", () => {
         directory: TEST_PROJECT_DIR,
       } as any);
 
-      await pluginInstance.config?.();
+      await pluginInstance.config?.({} as any);
 
       const versionFile = path.join(TEST_PROJECT_DIR, ".opencode", "skills", "intellisearch", ".version");
       const version = await readFile(versionFile, "utf-8");
@@ -112,7 +112,7 @@ describe("integration", () => {
       const pluginInstance1 = await plugin({
         directory: TEST_PROJECT_DIR,
       } as any);
-      await pluginInstance1.config?.();
+      await pluginInstance1.config?.({} as any);
 
       // Get file stats after first install
       const skillFile = path.join(TEST_PROJECT_DIR, ".opencode", "skills", "intellisearch", "SKILL.md");
@@ -122,7 +122,7 @@ describe("integration", () => {
       const pluginInstance2 = await plugin({
         directory: TEST_PROJECT_DIR,
       } as any);
-      await pluginInstance2.config?.();
+      await pluginInstance2.config?.({} as any);
 
       // Get file stats after second install
       const secondStats = await stat(skillFile);
@@ -138,7 +138,7 @@ describe("integration", () => {
         directory: TEST_PROJECT_DIR,
       } as any);
 
-      await pluginInstance.config?.();
+      await pluginInstance.config?.({} as any);
 
       // Verify paths were created correctly
       // This implicitly tests path.join works correctly

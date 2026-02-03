@@ -14,7 +14,7 @@ async function copyDir(src: string, dest: string): Promise<void> {
 }
 
 const plugin: Plugin = async ({ directory }) => ({
-  config: async () => {
+  config: async (config) => {
     const targetDir = path.join(directory, ".opencode");
     const marker = path.join(targetDir, "skills", "intellisearch", ".version");
 

@@ -30,7 +30,7 @@ describe("plugin", () => {
       directory: TEST_DIR,
     } as any);
 
-    await pluginInstance.config?.();
+    await pluginInstance.config?.({} as any);
 
     // Verify skills directory exists
     const skillsDir = path.join(TEST_DIR, ".opencode", "skills", "intellisearch");
@@ -64,7 +64,7 @@ describe("plugin", () => {
     const pluginInstance2 = await plugin({
       directory: TEST_DIR,
     } as any);
-    await pluginInstance2.config?.();
+    await pluginInstance2.config?.({} as any);
 
     // Verify file was not modified (compare timestamps)
     const secondMtime = (await Bun.file(skillFile).stat()).mtime;
@@ -81,7 +81,7 @@ describe("plugin", () => {
     const pluginInstance = await plugin({
       directory: TEST_DIR,
     } as any);
-    await pluginInstance.config?.();
+    await pluginInstance.config?.({} as any);
 
     // Verify version was updated
     const version = await readFile(versionFile, "utf-8");
@@ -96,6 +96,6 @@ describe("plugin", () => {
     } as any);
 
     // Should not throw
-    await expect(pluginInstance.config?.()).resolves.toBeUndefined();
+    await expect(pluginInstance.config?.({} as any)).resolves.toBeUndefined();
   });
 });
