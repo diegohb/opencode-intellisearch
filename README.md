@@ -38,13 +38,11 @@ Add to `~/.config/opencode/opencode.json` or project `opencode.json`:
   "plugin": ["opencode-intellisearch"]
 }
 ```
+### CLI Commands
 
-Then run the CLI to install skills/commands:
 ```bash
 npx opencode-intellisearch
 ```
-
-### Options
 
 | Flag | Description |
 |------|-------------|

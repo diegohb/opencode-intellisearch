@@ -117,9 +117,8 @@ test: add PMX test cases for npx and bunx
 
 ### Before Committing
 1. Run `npm run build` - ensure no TypeScript errors
-2. Test CLI locally: `node dist/bin/cli.js install --local`
-3. Verify assets copied to `dist/skills/` and `dist/commands/`
-4. Clean up test installations after testing
+2. Verify assets copied to `dist/skills/` and `dist/commands/`
+3. Clean the dist folder.
 
 ## Testing Protocol
 
@@ -146,6 +145,9 @@ cd testsub/subdir
 npx opencode-intellisearch --local
 bunx opencode-intellisearch --local
 ```
+
+**Note:** Use file:test-pmx.bat and log results to file:test-results-pmx.md
+
 
 ### Expected Behavior
 - All tests should install to project root `.opencode/`
@@ -178,10 +180,10 @@ MCP_DOCKER_mcp-exec({ name: "fetch_content", arguments: { url: "https://opencode
 ### DeepWiki
 Query GitHub repository documentation:
 ```typescript
-deepWiki_read_wiki_structure({ repoName: "opencode-ai/opencode" })
-deepWiki_read_wiki_contents({ repoName: "opencode-ai/opencode" })
+deepWiki_read_wiki_structure({ repoName: "anomalyco/opencode" })
+deepWiki_read_wiki_contents({ repoName: "anomalyco/opencode" })
 deepWiki_ask_question({ 
-  repoName: "opencode-ai/opencode", 
+  repoName: "anomalyco/opencode", 
   question: "How does the plugin config hook work?" 
 })
 ```
