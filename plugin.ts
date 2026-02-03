@@ -29,6 +29,7 @@ const plugin: Plugin = async ({ directory }) => ({
       path.join(pkgDir, "assets", "skills", "intellisearch"),
       path.join(targetDir, "skills", "intellisearch"),
     );
+    await mkdir(path.join(targetDir, "commands"), { recursive: true });
     await copyFile(
       path.join(pkgDir, "assets", "commands", "intellisearch.md"),
       path.join(targetDir, "commands", "intellisearch.md"),
