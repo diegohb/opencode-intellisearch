@@ -1,62 +1,22 @@
 {
   "name": "opencode-intellisearch",
-  "version": "0.1.2",
-  "description": "Intelligent web search routing for OpenCode with automatic tool selection, graceful fallbacks, and memory caching",
+  "version": "0.2.0",
   "type": "module",
-  "main": "dist/src/index.js",
-  "bin": {
-    "intellisearch": "dist/bin/cli.js"
-  },
-  "scripts": {
-    "build": "tsc && node dist/scripts/build.js",
-    "prepack": "tsc && node dist/scripts/build.js"
-  },
-  "files": [
-    "dist/**/*",
-    "source/assets/**/*",
-    "LICENSE",
-    "README.md",
-    "INSTALLATION.md",
-    "CONTRIBUTING.md",
-    "CHANGELOG.md",
-    "package.json"
-  ],
-  "keywords": [
-    "opencode",
-    "extension",
-    "skill",
-    "command",
-    "search",
-    "intellisearch",
-    "exa",
-    "deepwiki",
-    "duckduckgo",
-    "bun",
-    "bunx",
-    "npm",
-    "npx"
-  ],
-  "author": "intellisearch contributors",
+  "module": "index.ts",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/diegohb/opencode-intellisearch"
-  },
-  "bugs": {
-    "url": "https://github.com/diegohb/opencode-intellisearch/issues"
-  },
-  "homepage": "https://github.com/diegohb/opencode-intellisearch#readme",
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "os": [
-    "darwin",
-    "linux",
-    "win32"
+  "files": [
+    "index.ts",
+    "plugin.ts",
+    "assets"
   ],
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "*"
+  },
   "devDependencies": {
-    "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "@opencode-ai/plugin": "catalog:"
+    "@types/bun": "latest",
+    "typescript": "^5.7.0"
   }
 }
