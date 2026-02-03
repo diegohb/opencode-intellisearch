@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { mkdir, rm, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import plugin from "../../plugin.ts";
+import plugin from "../../source/plugin.ts";
 
 const TEST_DIR = path.join(import.meta.dirname, "../fixtures/test-project");
 
@@ -53,7 +53,7 @@ describe("plugin", () => {
     const pluginInstance1 = await plugin({
       directory: TEST_DIR,
     } as any);
-    await pluginInstance1.config?.();
+    await pluginInstance1.config?.({} as any);
 
     // Record modification time
     const skillsDir = path.join(TEST_DIR, ".opencode", "skills", "intellisearch");
