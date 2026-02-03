@@ -1,4 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["@qforge/opencode-architect"]
+  "plugin": ["@qforge/opencode-architect"],
+  "permission": {
+    "MCP_DOCKER_duckduckgo*": "allow",
+    "MCP_DOCKER_exa*": "allow",
+    "deepWiki*": "allow",
+    "sequential-thinking_*": "allow",
+    "google_search":"deny"
+  }
 }
