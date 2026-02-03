@@ -44,17 +44,23 @@ bun install
 
 ```
 opencode-intellisearch/
-├── assets/                      # Published directly
-│   ├── skills/intellisearch/    # Skill definition
-│   └── commands/                # Command definitions
-├── plugin.ts                    # OpenCode plugin entry (~45 lines)
-├── index.ts                     # Plugin re-export
-├── package.json                 # Bun-native configuration
-├── tsconfig.json                # Bun TypeScript config
-├── README.md                    # Main documentation
-├── CONTRIBUTING.md              # This file
-├── CHANGELOG.md                 # Version history
-└── LICENSE                      # MIT License
+ ├── assets/                      # Published directly
+ │   ├── skills/intellisearch/    # Skill definition
+ │   └── commands/                # Command definitions
+ ├── source/                      # Source code
+ │   └── plugin.ts               # OpenCode plugin entry (~45 lines)
+ ├── index.ts                     # Plugin re-export
+ ├── tests/                       # Test suite
+ │   ├── unit/                   # Unit tests
+ │   └── integration/             # Integration tests
+ ├── package.json                 # Bun-native configuration
+ ├── tsconfig.json                # Bun TypeScript config
+ ├── bunfig.toml                 # Bun test configuration
+ ├── README.md                    # Main documentation
+ ├── INSTALLATION.md               # Installation guide
+ ├── CONTRIBUTING.md              # This file
+ ├── CHANGELOG.md                 # Version history
+ └── LICENSE                      # MIT License
 ```
 
 ## Making Changes
@@ -122,7 +128,7 @@ Use $ARGUMENTS for user input.
 
 ### Plugin Development
 
-The plugin is located at `plugin.ts`.
+The plugin is located at `source/plugin.ts`.
 
 **Plugin Structure:**
 
@@ -139,7 +145,7 @@ export default plugin;
 ```
 
 **Key Points:**
-- Uses `import.meta.dirname` for package root
+- Uses `path.join(import.meta.dirname, "..")` for package root
 - Copies assets from `assets/` to target `.opencode/`
 - Uses version marker (`.version`) to prevent duplicate installs
 - Returns early if version marker matches current version
@@ -152,21 +158,76 @@ export default plugin;
 bun run check
 ```
 
-### Test Locally
+### Run Tests
 
 ```bash
-# Link for local testing
-bun link
+# Run all tests
+bun test
 
-# In test project, link the package
-bun link opencode-intellisearch
+# Run tests with coverage
+bun test --coverage
 
-# Or use path-based testing (recommended)
-# Add to test project's opencode.json:
-# {
-#   "plugins": ["/path/to/opencode-intellisearch"]
-# }
+# Watch mode for development
+bun run test:watch
 ```
+
+Test coverage is configured in `bunfig.toml` with a 90% threshold (assets excluded).
+
+### Test Locally
+
+**Path-Based Testing (Recommended)**
+
+1. Configure test project's `opencode.json` with the plugin path:
+
+   ```json
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "plugin": ["C:/dev/projects/github/opencode-intellisearch"],
+     "mcp": {
+       "DeepWiki": {
+         "type": "remote",
+         "url": "https://mcp.deepwiki.com/mcp",
+         "enabled": true
+       },
+       "memory": {
+         "type": "local",
+         "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+         "enabled": true
+       },
+       "exa": {
+         "type": "remote",
+         "url": "https://mcp.exa.ai/mcp",
+         "enabled": true
+       }
+     },
+     "permission": {
+       "*": "deny",
+       "DeepWiki*": "allow",
+       "memory*": "allow",
+       "exa*": "allow",
+       "webfetch": "ask"
+     }
+   }
+   ```
+
+2. Run OpenCode test in test project:
+   ```bash
+   cd /path/to/test-project
+   opencode run "test hello"
+   ```
+
+3. Check OpenCode logs for errors:
+   - Windows: `%USERPROFILE%/.local/share/opencode/log/`
+   - macOS/Linux: `~/.local/share/opencode/log/`
+
+4. Verify assets are installed:
+   ```bash
+   ls .opencode/skills/intellisearch/
+   ls .opencode/commands/intellisearch.md
+   cat .opencode/skills/intellisearch/.version  # Should show 0.2.1
+   ```
+
+**Note:** The test configuration includes all required MCP servers and proper permissions for intellisearch to function correctly.
 
 ### Path-Based Testing (Recommended)
 
@@ -239,10 +300,18 @@ bun run check
 
 Ensure no TypeScript errors.
 
-### 4. Commit Changes
+### 4. Run Tests
 
 ```bash
-git add plugin.ts
+bun test
+```
+
+Ensure all tests pass.
+
+### 5. Commit Changes
+
+```bash
+git add source/plugin.ts
 git commit -m "feat: add new routing feature
 
 - Description of what changed
@@ -270,6 +339,13 @@ git push origin ai-your-feature-name
 - Select your branch
 - Fill in PR template
 - Submit for review
+
+**Pull Request Requirements:**
+- All tests must pass (`bun test`)
+- TypeScript must check cleanly (`bun run check`)
+- CHANGELOG.md updated with relevant changes
+- Documentation updated if applicable
+- Follow conventional commit message format
 
 ### 7. Address Feedback
 
@@ -300,7 +376,7 @@ import path from "node:path";
 import type { Plugin } from "@opencode-ai/plugin";
 
 // Internal modules (include .ts extension for Bun)
-import { default as plugin } from "./plugin.ts";
+import { default as plugin } from "./source/plugin.ts";
 ```
 
 ### Naming Conventions
