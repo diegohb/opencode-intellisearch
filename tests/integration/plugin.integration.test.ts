@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
 import { mkdir, rm, readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
-import plugin from "../../plugin.ts";
+import plugin from "../../source/plugin.ts";
 
 const TEST_PROJECT_DIR = path.join(import.meta.dirname, "../fixtures/integration-test-project");
 
