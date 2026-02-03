@@ -7,7 +7,7 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "./source",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
@@ -20,13 +20,12 @@
     "noUnusedParameters": true
   },
   "include": [
-    "index.ts",
-    "bin/**/*.ts",
-    "scripts/**/*.ts"
+    "source/src/**/*.ts",
+    "source/bin/**/*.ts",
+    "source/scripts/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "source"
+    "dist"
   ]
 }

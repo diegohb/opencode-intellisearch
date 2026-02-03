@@ -3,21 +3,17 @@
   "version": "0.1.2",
   "description": "Intelligent web search routing for OpenCode with automatic tool selection, graceful fallbacks, and memory caching",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "bin": {
     "intellisearch": "dist/bin/cli.js"
   },
   "scripts": {
     "build": "tsc && node dist/scripts/build.js",
-    "prepack": "tsc && node dist/scripts/build.js",
-    "postinstall": "node dist/bin/cli.js install"
+    "prepack": "tsc && node dist/scripts/build.js"
   },
   "files": [
     "dist/**/*",
-    "bin/**/*",
-    "scripts/**/*",
-    "index.ts",
-    "tsconfig.json",
+    "source/assets/**/*",
     "LICENSE",
     "README.md",
     "INSTALLATION.md",
@@ -59,7 +55,8 @@
     "win32"
   ],
   "devDependencies": {
-    "@types/node": "^25.2.0",
-    "typescript": "^5.9.3"
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "@opencode-ai/plugin": "catalog:"
   }
 }
