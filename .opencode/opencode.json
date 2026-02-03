@@ -5,7 +5,6 @@
     "MCP_DOCKER_duckduckgo*": "allow",
     "MCP_DOCKER_exa*": "allow",
     "deepWiki*": "allow",
-    "sequential-thinking_*": "allow",
-    "google_search":"deny"
+    "sequential-thinking_*": "allow"
   }
 }
