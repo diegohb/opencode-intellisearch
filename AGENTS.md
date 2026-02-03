@@ -8,6 +8,10 @@ Guidelines for agentic coding agents working on this OpenCode extension reposito
 # TypeScript type checking (no build step - Bun runs TS natively)
 bun run check
 
+# Run tests
+bun test
+bun run test:watch  # Watch mode
+
 # Local development (link to OpenCode plugin cache)
 bun link
 bun link opencode-intellisearch --cwd $home/.cache/opencode/node_modules/
@@ -29,7 +33,10 @@ bun unlink
 ├── plugin.ts         # OpenCode plugin with config hook (~45 lines)
 ├── index.ts          # Plugin re-export
 ├── package.json      # Bun-native configuration
-└── tsconfig.json     # Bun-optimized TypeScript config
+├── tsconfig.json     # Bun-optimized TypeScript config
+└── tests/            # Bun test suite
+    ├── unit/         # Unit tests
+    └── integration/  # Integration tests
 ```
 
 ## Code Style Guidelines
