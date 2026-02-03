@@ -18,7 +18,7 @@ Thank you for your interest in contributing to intellisearch!
 ### Prerequisites
 
 - [Git](https://git-scm.com/)
-- [Bun](https://bun.sh/) (Primary) or [Node.js](https://nodejs.org/) (Alternative)
+- [Bun](https://bun.sh/) (required)
 - OpenCode installed and configured
 - Text editor (VS Code recommended)
 - Bash or PowerShell terminal
@@ -34,54 +34,34 @@ git clone https://github.com/diegohb/opencode-intellisearch.git
 cd opencode-intellisearch
 ```
 
-### 2. Build Distribution Files
-
-The package uses a `dist/` directory for distribution. Run the build script:
+### 2. Install Dependencies
 
 ```bash
-# Using Bun (Primary)
-bun run build
-
-# Using npm (Alternative)
-npm run build
+bun install
 ```
-
-This copies all files from `source/` to `dist/`.
 
 ## Package Structure
 
 ```
 opencode-intellisearch/
-├── source/
-│   ├── skills/
-│   │   └── intellisearch/
-│   │       ├── SKILL.md              # Main skill definition
-│   │       └── references/          # Supporting documentation
-│   │           ├── exa-tools.md
-│   │           ├── deepwiki-tools.md
-│   │           ├── fallback-tools.md
-│   │           └── routing-workflows.md
-│   ├── commands/
-│   │   └── intellisearch.md       # TUI command definition
-│   ├── README.md
-│   ├── INSTALLATION.md
-│   ├── CONTRIBUTING.md
-│   ├── CHANGELOG.md
-│   └── LICENSE
-├── scripts/
-│   └── build.js                 # Build script (source → dist)
-├── bin/
-│   └── cli.js                     # Manual install/uninstall CLI
-├── dist/                        # Distribution files (generated)
-├── package.json                 # npm package configuration
-└── README.md                    # Main documentation
+├── assets/                      # Published directly
+│   ├── skills/intellisearch/    # Skill definition
+│   └── commands/                # Command definitions
+├── plugin.ts                    # OpenCode plugin entry (~45 lines)
+├── index.ts                     # Plugin re-export
+├── package.json                 # Bun-native configuration
+├── tsconfig.json                # Bun TypeScript config
+├── README.md                    # Main documentation
+├── CONTRIBUTING.md              # This file
+├── CHANGELOG.md                 # Version history
+└── LICENSE                      # MIT License
 ```
 
 ## Making Changes
 
 ### Skill Development
 
-Skills are defined in `source/skills/intellisearch/SKILL.md`.
+Skills are defined in `assets/skills/intellisearch/SKILL.md`.
 
 **SKILL.md Structure:**
 
@@ -118,7 +98,7 @@ metadata:
 
 ### Command Development
 
-Commands are defined in `source/commands/intellisearch.md`.
+Commands are defined in `assets/commands/intellisearch.md`.
 
 **Command Structure:**
 
@@ -140,60 +120,85 @@ Use $ARGUMENTS for user input.
 - Provide examples in command template
 - Handle edge cases in template
 
-### CLI Development
+### Plugin Development
 
-The manual CLI is located at `bin/cli.js`.
+The plugin is located at `plugin.ts`.
 
-**CLI Structure:**
+**Plugin Structure:**
 
-```javascript
-// Commands available: install, uninstall
-// Options: --local, --global, --help
+```typescript
+import type { Plugin } from "@opencode-ai/plugin";
 
-// Usage: intellisearch <command> [options]
+const plugin: Plugin = async ({ directory, client }) => ({
+  config: async () => {
+    // Installation logic here
+  },
+});
+
+export default plugin;
 ```
 
-**Adding New CLI Commands:**
-
-1. Add command handler to `bin/cli.js`
-2. Update help text in `showHelp()` function
-3. Document the command in README.md and INSTALLATION.md
-4. Test all command options
+**Key Points:**
+- Uses `import.meta.dirname` for package root
+- Copies assets from `assets/` to target `.opencode/`
+- Uses version marker (`.version`) to prevent duplicate installs
+- Returns early if version marker matches current version
 
 ## Testing
+
+### Type Checking
+
+```bash
+bun run check
+```
 
 ### Test Locally
 
 ```bash
-# After making changes, build dist
-bun run build
+# Link for local testing
+bun link
 
-# Test CLI
-./bin/cli.js --help
-./bin/cli.js install --local
-./bin/cli.js uninstall --local
+# In test project, link the package
+bun link opencode-intellisearch
 
-# Test package installation
-bun install -g opencode-intellisearch
-
-# Verify files are copied
-ls -la .opencode/skills/intellisearch/
-ls -la .opencode/commands/intellisearch.md
-# OR for global
-ls -la ~/.config/opencode/skills/intellisearch/
-ls -la ~/.config/opencode/commands/intellisearch.md
-
-# Test in OpenCode
-# Start OpenCode and run: /intellisearch test query
+# Or use path-based testing (recommended)
+# Add to test project's opencode.json:
+# {
+#   "plugins": ["/path/to/opencode-intellisearch"]
+# }
 ```
+
+### Path-Based Testing (Recommended)
+
+1. Configure test project's `opencode.json`:
+   ```json
+   {
+     "plugins": ["C:/dev/projects/github/opencode-intellisearch"]
+   }
+   ```
+
+2. Run test:
+   ```bash
+   cd /path/to/test-project
+   opencode run "test hello"
+   ```
+
+3. Check OpenCode logs:
+   - Windows: `%USERPROFILE%/.local/share/opencode/log/`
+   - macOS/Linux: `~/.local/share/opencode/log/`
+
+4. Verify assets installed:
+   ```bash
+   ls .opencode/skills/intellisearch/
+   ls .opencode/commands/intellisearch.md
+   ```
 
 ### Test Cross-Platform
 
 - Test on Linux, macOS, and Windows
-- Test global and local installations
-- Test with and without existing installations
+- Test fresh install (no `.version` marker)
+- Test version skip (existing `.version` marker)
 - Test with different OpenCode versions
-- Test with both Bun and npm
 
 ### Test Skill Behavior
 
@@ -213,21 +218,32 @@ ls -la ~/.config/opencode/commands/intellisearch.md
 ### 1. Create a Branch
 
 ```bash
-git checkout -b feature/your-feature-name
+git checkout -b ai-your-feature-name
 ```
+
+All branches must start with `ai-`.
 
 ### 2. Make Your Changes
 
-- Edit files in `source/` directory
+- Edit files in `assets/` directory for skills/commands
+- Edit `plugin.ts` for plugin logic
 - Test thoroughly
 - Update documentation
 - Update CHANGELOG.md
 
-### 3. Commit Changes
+### 3. Type Check
 
 ```bash
-git add source/skills/intellisearch/SKILL.md
-git commit -m "Add new routing feature
+bun run check
+```
+
+Ensure no TypeScript errors.
+
+### 4. Commit Changes
+
+```bash
+git add plugin.ts
+git commit -m "feat: add new routing feature
 
 - Description of what changed
 - Why it was changed
@@ -238,19 +254,12 @@ git commit -m "Add new routing feature
 - Use conventional commits
 - First line: 50 chars or less
 - Subsequent lines: more detail
-
-### 4. Build Distribution Files
-
-Before committing, ensure `dist/` is up to date:
-
-```bash
-bun run build
-```
+- Branch names must start with `ai-`
 
 ### 5. Push to Your Fork
 
 ```bash
-git push origin feature/your-feature-name
+git push origin ai-your-feature-name
 ```
 
 ### 6. Create Pull Request
@@ -267,9 +276,39 @@ git push origin feature/your-feature-name
 - Respond to review comments
 - Make requested changes
 - Push updates to your branch
-- Rebuild `dist/` if needed
+- Ensure `bun run check` still passes
 
 ## Code Style
+
+### TypeScript
+
+- Use **named functions** (not arrow functions) where no `this` scoping issues
+- Target: ESNext, Module: ESNext
+- Strict mode enabled
+- Always use explicit return types on exported functions
+- Prefer `async/await` over callbacks
+- **Bun-native**: Import with `.ts` extensions
+
+### Imports
+
+```typescript
+// Node built-ins first (use node: prefix)
+import { mkdir, copyFile } from "node:fs/promises";
+import path from "node:path";
+
+// External dependencies
+import type { Plugin } from "@opencode-ai/plugin";
+
+// Internal modules (include .ts extension for Bun)
+import { default as plugin } from "./plugin.ts";
+```
+
+### Naming Conventions
+
+- Functions: `camelCase` (e.g., `copyDirectory`, `installAssets`)
+- Constants: `SCREAMING_SNAKE_CASE` (e.g., `VERSION`)
+- Interfaces: `PascalCase` (e.g., `PluginContext`)
+- Files: `kebab-case.ts`
 
 ### Markdown Files
 
@@ -305,30 +344,6 @@ temperature: 0.2
 ---
 ```
 
-### JavaScript Files
-
-- Use standard Node.js APIs (`fs`, `path`) - compatible with both Bun and Node.js
-- Use `require()` (works in both Bun and Node.js)
-- Use error handling with try/catch where needed
-- Add comments for complex logic
-
-### CLI Files
-
-- Use `#!/usr/bin/env node` shebang
-- Check command arguments from `process.argv[2]`
-- Provide clear error messages
-- Use emojis for output (✅, ❌, ℹ️)
-- Handle both `--local` and `--global` options
-- Show help on `--help` or `-h`
-
-### package.json
-
-- Keep `bun` field for Bun-specific config
-- Use `bin` field for CLI commands
-- Use `peerDependencies` for `@opencode-ai/plugin`
-- Keep `engines.node` for npm users
-- Keep both Bun and npm in keywords
-
 ## Reporting Issues
 
 ### Bug Reports
@@ -338,9 +353,8 @@ When reporting bugs, include:
 1. **Environment:**
    - OS and version
    - OpenCode version
-   - Package manager (Bun/npm)
+   - Bun version
    - Installation type (global/local)
-   - CLI command output
 
 2. **Steps to Reproduce:**
    - Clear, numbered steps
@@ -349,6 +363,7 @@ When reporting bugs, include:
 
 3. **Error Messages:**
    - Full error output
+   - OpenCode logs from `~/.local/share/opencode/log/`
    - Screenshots if applicable
 
 4. **Additional Context:**

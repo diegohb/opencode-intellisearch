@@ -11,52 +11,36 @@ Intelligent web search routing for OpenCode with automatic tool selection, grace
 - **Memory Caching**: Caches search results for faster follow-up queries (optional)
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 - **TypeScript + ESM**: Built with TypeScript for type safety, uses ESM for OpenCode plugin compatibility
+- **Bun-Native**: Zero build step, runs TypeScript natively with Bun
 
 ## 🚀 Installation
 
-### Quick Install (npx/bunx)
-
-```bash
-# npm
-npx opencode-intellisearch
-
-# bun
-bunx opencode-intellisearch
-```
-
-Auto-detects project vs global based on `package.json` presence.
-
-### Plugin Method
-
-**Best for**: Users who want OpenCode to manage the plugin
-
-Add to `~/.config/opencode/opencode.json` or project `opencode.json`:
+Add to your `opencode.json`:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-intellisearch"]
+  "plugins": ["opencode-intellisearch"]
 }
 ```
-### CLI Commands
+
+Or install locally in your project:
 
 ```bash
-npx opencode-intellisearch
+bun add -d opencode-intellisearch
 ```
 
-| Flag | Description |
-|------|-------------|
-| `--local` | Force install to `.opencode/` (project) |
-| `--global` | Force install to `~/.config/opencode/` |
-| `--force` | Reinstall even if already installed |
-| `--help` | Show help |
+Then add to your project's `opencode.json`:
 
-### Scope Detection
-
-- **Project install**: `.opencode/` (detected by `package.json` in parent directories)
-- **Global install**: `~/.config/opencode/` (default if not in a project)
+```json
+{
+  "plugins": ["opencode-intellisearch"]
+}
+```
 
 ## 📖 Usage
+
+Once installed, the plugin automatically adds the `/intellisearch` command to OpenCode:
 
 ```bash
 /intellisearch How does React useEffect work?
@@ -70,7 +54,6 @@ npx opencode-intellisearch
 ### Runtime
 
 - **Bun** - Download from [bun.sh](https://bun.sh/)
-- **Node.js** - Download from [nodejs.org/](https://nodejs.org/) version 18+
 
 ### MCP Servers
 
@@ -128,9 +111,8 @@ Tertiary (webfetch)
 
 ## 📚 Documentation
 
-- [Installation Guide](INSTALLATION.md)
-- [Troubleshooting](#troubleshooting)
 - [Contributing](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
 
 ## 🐛 Troubleshooting
 
@@ -142,21 +124,10 @@ Tertiary (webfetch)
   curl -fsSL https://bun.sh/install | bash
   ```
 
-**"npm command not found" - npm is not installed:**
-- Install Node.js from [nodejs.org](https://nodejs.org/)
-
-**"npx: command not found" - npx is not installed:**
-- Install Node.js from [nodejs.org](https://nodejs.org/)
-
-**"Permission denied" - Cannot install globally:**
-```bash
-# npm
-sudo npm install -g opencode-intellisearch
-```
-
-**Files not installed:**
-- Run `npx opencode-intellisearch` to install skills/commands
-- Add `--force` to reinstall if already present
+**Plugin not loading:**
+- Check OpenCode logs: `~/.local/share/opencode/log/`
+- Verify plugin is in `opencode.json` plugins array
+- Ensure Bun is installed and in PATH
 
 ### Search Issues
 
@@ -173,47 +144,30 @@ sudo npm install -g opencode-intellisearch
 - Check MCP server status with `/mcp status`
 - Verify internet connectivity
 
-## 🔧 Manual Installation
+## 🗑️ Uninstall
 
-If all automated methods fail, manually copy files from `dist/` directory:
+Remove from `opencode.json` plugins array:
 
-**Global:**
-```bash
-mkdir -p ~/.config/opencode/skills ~/.config/opencode/commands
-cp -r dist/skills/* ~/.config/opencode/skills/
-cp dist/commands/* ~/.config/opencode/commands/
+```json
+{
+  "plugins": []
+}
 ```
 
-**Local:**
-```bash
-mkdir -p .opencode/skills .opencode/commands
-cp -r dist/skills/* .opencode/skills/
-cp dist/commands/* .opencode/commands/
-```
-
-## 🗑️  Uninstall
+Or for local installs:
 
 ```bash
-# npm
-npx opencode-intellisearch uninstall
-
-# bun
-bunx opencode-intellisearch uninstall
+bun remove opencode-intellisearch
 ```
-
-Or remove from opencode.json plugin array.
 
 ## 🛠️ Development
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
-# Build TypeScript
-npm run build
-
-# Test CLI
-node dist/bin/cli.js install --local
+# Type check
+bun run check
 
 # Link for local testing
 bun link
