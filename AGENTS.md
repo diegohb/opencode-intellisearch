@@ -10,7 +10,7 @@ bun run check
 
 # Local development (link to OpenCode plugin cache)
 bun link
-bun link opencode-intellisearch --cwd ~/.cache/opencode/node_modules/
+bun link opencode-intellisearch --cwd $home/.cache/opencode/node_modules/
 # Alternative: ln -s $(pwd) ~/.cache/opencode/node_modules/opencode-intellisearch
 
 # Unlink when done
@@ -109,42 +109,29 @@ docs: update installation for bun-only
 ### Test Project
 Use: `C:\dev\projects\playground\aigpt\test-websearch`
 
-### Setup Phase (Run Once)
-```bash
-# 1. In package directory - create global symlink
-cd C:\dev\projects\github\opencode-intellisearch
-bun link
+### Quick Test (Path-based - Recommended)
 
-# 2. Link into OpenCode's plugin cache (REQUIRED for OpenCode to find it)
-# Windows:
-bun link opencode-intellisearch --cwd %USERPROFILE%\.cache\opencode\node_modules\
-# Or manually: mklink /D %USERPROFILE%\.cache\opencode\node_modules\opencode-intellisearch C:\dev\projects\github\opencode-intellisearch
+This method tests the plugin directly from the source directory without publishing or linking.
 
-# macOS/Linux:
-bun link opencode-intellisearch --cwd ~/.cache/opencode/node_modules/
-# Or manually: ln -s $(pwd) ~/.cache/opencode/node_modules/opencode-intellisearch
-```
-
-### Test Case (Single Test - Plugin Load)
-1. **Configure OpenCode** - Add to test project's `opencode.json`:
+1. **Configure OpenCode** - Edit test project's `.opencode/opencode.json`:
    ```json
    {
      "$schema": "https://opencode.ai/config.json",
-     "plugins": ["opencode-intellisearch"]
+     "plugin": ["C:/dev/projects/github/opencode-intellisearch"]
    }
    ```
 
-2. **Start OpenCode** in test project:
+2. **Run Test Command**:
    ```bash
    cd C:\dev\projects\playground\aigpt\test-websearch
-   opencode
+   opencode run "test hello"
    ```
 
-3. **Verify Plugin Loads:**
-   - Check OpenCode logs for: `intellisearch: Installing v0.2.0...`
-   - Check OpenCode logs for: `intellisearch: Installation complete`
+3. **Check Logs**:
+   - Windows: `C:\Users\%USERNAME%\.local\share\opencode\log`
+   - Look for plugin loading and asset installation messages
 
-4. **Verify Assets Installed:**
+4. **Verify Assets Installed**:
    ```bash
    # Check skills
    ls .opencode/skills/intellisearch/
@@ -154,33 +141,19 @@ bun link opencode-intellisearch --cwd ~/.cache/opencode/node_modules/
    ls .opencode/commands/intellisearch.md
    ```
 
-5. **Verify Version Marker:**
+5. **Verify Version Marker**:
    ```bash
    cat .opencode/skills/intellisearch/.version
    # Expected: 0.2.0
    ```
 
-6. **Restart Test** - Stop and restart OpenCode:
-   - Plugin should skip installation (version marker match)
-   - Log should NOT show "Installing..." message
-
 ### Cleanup Phase
 ```bash
 # 1. Remove plugin from opencode.json
-# 2. Remove symlink from OpenCode cache
-# Windows:
-rmdir %USERPROFILE%\.cache\opencode\node_modules\opencode-intellisearch
-# macOS/Linux:
-rm ~/.cache/opencode/node_modules/opencode-intellisearch
-
-# 3. Clean test project
+# 2. Clean test project assets
 rm -rf C:\dev\projects\playground\aigpt\test-websearch\.opencode\skills\intellisearch
 rm C:\dev\projects\playground\aigpt\test-websearch\.opencode\commands\intellisearch.md
 # Or simply: rm -rf .opencode/
-
-# 4. Unlink package
-cd C:\dev\projects\github\opencode-intellisearch
-bun unlink
 ```
 
 ## Helpful Tools
