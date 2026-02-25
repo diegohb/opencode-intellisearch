@@ -18,6 +18,57 @@ Auto-trigger this skill when users ask about:
 - General knowledge requiring external sources
 - When uncertain if information exists in training data
 
+## Local Codebase - Best Truth Source
+
+**CRITICAL**: When workspace/file context is available, the local codebase is the **BEST TRUTH SOURCE** and MUST be prioritized before any external search.
+
+### Best Truth Source Hierarchy
+
+```
+Priority Order (Highest to Lowest):
+1. LOCAL CODEBASE (workspace files) - Best for project-specific questions
+2. EXTERNAL REPOS (deepWiki) - Best for library/framework questions  
+3. WEB SEARCH (Exa) - Best for general knowledge, news, opinions
+4. FALLBACKS (DuckDuckGo, webfetch) - When primary tools unavailable
+```
+
+### When to Use Local Codebase
+
+Always search local workspace FIRST when:
+- Question relates to the current project/workspace
+- User asks "how does X work in this codebase"
+- Query involves project-specific patterns, configs, or structure
+- Looking for implementation details within the workspace
+
+### When to Skip Local Codebase
+
+Go directly to external search when:
+- Question is about external libraries/frameworks NOT in the workspace
+- User explicitly asks about a different project/repository
+- Information needed is general (not project-specific)
+- Local search already attempted and yielded no relevant results
+
+### Local vs External Decision Tree
+
+```
+Question about code/technology?
+    ↓
+Has workspace/file context available?
+    ↓
+Yes /    \ No
+   ↓        ↓
+Search   Check if query mentions
+local    specific external repo?
+codebase      ↓
+    ↓    Yes /    \ No
+Found?        ↓        ↓
+    ↓     deepWiki  Exa web
+Yes /  \ No       search
+   ↓     ↓
+Use    Try external
+local  (deepWiki/Exa)
+```
+
 ## Required MCP Servers
 
 - **exa** - Web search with category filters (news, company, people, research paper)
@@ -28,6 +79,9 @@ Auto-trigger this skill when users ask about:
 ```
 QUERY → Classify → Route
 
+Has workspace context? → YES → Search LOCAL CODEBASE first (BEST TRUTH)
+                              ↓ No match / not project-specific
+                          NO ↓
 Code/Tech? → Check for GitHub repo → Repo found? → deepWiki (authoritative)
                                       ↓ No repo
 News?      → Exa (category: news)          → Exa (community perspectives)
@@ -37,11 +91,27 @@ Research?  → Exa (category: research paper)
 General?   → Exa (web_search_exa)
 ```
 
+**Priority Rule**: Always check local workspace before external sources. The local codebase is the authoritative source for project-specific questions.
+
 **Special Rule**: Queries with category "github" redirect to deepWiki.
 
 ## Quick Start
 
-**Code/technology question:**
+**IMPORTANT**: Always check local workspace first. The local codebase is the BEST TRUTH for project-specific questions.
+
+**Local codebase question (project-specific):**
+```json
+{
+  "tool": "grep or read relevant workspace files",
+  "params": {
+    "query": "search terms in local files"
+  }
+}
+```
+If local search yields relevant results → Use local codebase as authority.
+If no local match → Proceed to external search.
+
+**Code/technology question (external library):**
 ```json
 {
   "tool": "exa:web_search_exa",
@@ -90,14 +160,18 @@ If repo found → use `deepwiki:deepWiki_ask_question`
 
 ## Fallback Strategy
 
-When primary MCP servers fail or are unavailable, use this fallback chain:
+**NOTE**: The local codebase is NOT a fallback - it is the PRIMARY source. External tools are the fallback when local search doesn't apply or yields no results.
 
-**Priority Order:**
-1. **Primary**: Exa MCP (`exa:web_search_exa`, etc.)
-2. **Secondary**: DuckDuckGo tools (if available)
-3. **Tertiary**: webfetch (standard OpenCode tool)
+When external MCP servers fail or are unavailable, use this fallback chain:
 
-**Fallback Process:**
+**Source Priority (not fallback order):**
+1. **Primary**: Local workspace files (when project-specific question)
+2. **Secondary**: Exa MCP (`exa:web_search_exa`, etc.)
+3. **Tertiary**: deepWiki for GitHub repos
+4. **Last Resort**: DuckDuckGo tools (if available)
+5. **Final**: webfetch (standard OpenCode tool)
+
+**Actual Fallback Process (for external tools):**
 ```
 Exa MCP available?
     ↓ No
@@ -108,14 +182,17 @@ Use webfetch for specific URLs
 Report clear failure message
 ```
 
-**Tool Selection by Fallback Level:**
+**Tool Selection by Source Priority:**
 
-| Level | Tool | Use When |
-|-------|------|----------|
-| Primary | `exa:web_search_exa` | Default for all searches |
-| Primary | `deepwiki:deepWiki_ask_question` | GitHub repo questions |
-| Secondary | `duckduckgo_search` | Exa unavailable |
-| Tertiary | `webfetch` | Direct URL access only |
+| Priority | Tool | Use When |
+|----------|------|----------|
+| 1 (Primary) | Local workspace files | Project-specific questions, code in current codebase |
+| 2 | `exa:web_search_exa` | Default for all external searches |
+| 2 | `deepwiki:deepWiki_ask_question` | GitHub repo questions (when no local match) |
+| 3 | `duckduckgo_search` | Exa unavailable |
+| 4 | `webfetch` | Direct URL access only |
+
+**Key Principle**: Local workspace is ALWAYS checked first for code/technology questions about the current project.
 
 See [references/fallback-tools.md](references/fallback-tools.md) for detailed fallback documentation.
 
@@ -129,8 +206,10 @@ If memory tool is available, cache successful search results for reuse.
   "intellisearch_cache": {
     "[query_hash]": {
       "query": "original query",
+      "source_type": "local|exa|deepwiki|duckduckgo|webfetch",
       "tool_used": "exa|deepwiki|duckduckgo|webfetch",
       "repo_found": "owner/repo|null",
+      "local_match": true|false,
       "timestamp": "ISO timestamp",
       "result_summary": "brief summary"
     }
@@ -141,7 +220,8 @@ If memory tool is available, cache successful search results for reuse.
 **Cache Check Process:**
 1. Before executing a search, check for exact query match
 2. Check for semantic similarity (same topic/technology)
-3. If cached repo found → skip detection, use cached routing decision
+3. If cached local match exists → use local workspace results
+4. If cached repo found → skip detection, use cached routing decision
 
 **Cache Operations:**
 ```javascript
@@ -194,6 +274,7 @@ Fallback Used: [none/duckduckgo/webfetch]
 
 ## Token Optimization
 
+- **Check local workspace first** - Most token-efficient, always authoritative for project-specific questions
 - Use `"type": "fast"` for repository detection
 - Use `"highlights"` for initial queries (saves tokens vs "text")
 - Use deepWiki for code repos (more accurate, often more concise)

@@ -2,14 +2,77 @@
 
 Detailed decision trees and workflows for intelligent search routing.
 
+## CRITICAL: Local Codebase is Best Truth Source
+
+When workspace/file context is available, the local codebase is the **BEST TRUTH SOURCE** and MUST be checked before any external search.
+
+**Source Priority (Highest to Lowest):**
+1. **LOCAL CODEBASE** - Best for project-specific questions
+2. **EXTERNAL REPOS (deepWiki)** - Best for library/framework questions  
+3. **WEB SEARCH (Exa)** - Best for general knowledge, news, opinions
+4. **FALLBACKS** - DuckDuckGo, webfetch when primary tools unavailable
+
 ## Contents
 
-1. [Code/Technology Workflow](#codetechnology-workflow)
-2. [News Workflow](#news-workflow)
-3. [Company Workflow](#company-workflow)
-4. [Person Workflow](#person-workflow)
-5. [Research Workflow](#research-workflow)
-6. [Token Optimization Tips](#token-optimization-tips)
+1. [Local Codebase Workflow](#local-codebase-workflow)
+2. [Code/Technology Workflow](#codetechnology-workflow)
+3. [News Workflow](#news-workflow)
+4. [Company Workflow](#company-workflow)
+5. [Person Workflow](#person-workflow)
+6. [Research Workflow](#research-workflow)
+7. [Token Optimization Tips](#token-optimization-tips)
+8. [Fallback Chain](#fallback-chain)
+
+---
+
+## Local Codebase Workflow
+
+**ALWAYS check local workspace FIRST** when project context is available.
+
+### Decision Tree
+
+```
+Question about code/technology?
+    ↓
+Is it project-specific? (this codebase, this project)
+    ↓
+Yes /    \ No
+   ↓        ↓
+Search   Check if query mentions
+local    specific external repo?
+codebase      ↓
+     ↓    Yes /    \ No
+Found?        ↓        ↓
+     ↓     deepWiki  Exa web
+Yes /  \ No       search
+   ↓     ↓
+Use    Try external
+local  (deepWiki/Exa)
+```
+
+### When to Use Local Codebase
+
+- Questions about "this codebase", "this project", "here"
+- Looking for implementation details, patterns, configs
+- Questions about project-specific code
+- Query relates to the current workspace
+
+### Step-by-Step Process
+
+**Step 1: Check if project-specific**
+- Does the query mention "this codebase", "this project", local context?
+- Is the question about code that exists in the current workspace?
+
+**Step 2: Search local workspace**
+- Use grep/read to search workspace files
+- Look for relevant implementations, configs, patterns
+
+**Step 3: Route based on results**
+
+| Result | Action | Tool |
+|--------|--------|------|
+| Local match found | Use local codebase | grep/read |
+| No local match | External search | deepWiki/Exa |
 
 ---
 
@@ -289,12 +352,18 @@ Research/academic query
 
 ## Token Optimization Tips
 
+### Priority: Local Workspace First
+
+**Most important**: Check local workspace first - it's the most token-efficient AND most authoritative for project-specific questions.
+
 ### Progressive Search Strategy
 
-1. **Start small**: Use `type: "fast"` and `highlights` for initial search
-2. **Expand only if needed**: Switch to `text` mode for deep analysis
-3. **Limit results**: Use minimum `num_results` that satisfies the query
-4. **Use deepWiki for code**: Often more concise than web search results
+1. **Start with local** - Check workspace files for project-specific questions
+2. **Then external** - Use deepWiki/Exa for external library questions
+3. **Start small**: Use `type: "fast"` and `highlights` for initial search
+4. **Expand only if needed**: Switch to `text` mode for deep analysis
+5. **Limit results**: Use minimum `num_results` that satisfies the query
+6. **Use deepWiki for code**: Often more concise than web search results
 
 ### Content Mode Selection
 
@@ -326,9 +395,21 @@ If a query would use Exa with `category: "github"` about a specific repository, 
 
 ## Fallback Chain
 
-When primary MCP servers fail, use this fallback workflow.
+**NOTE**: Local workspace is NOT a fallback - it is the PRIMARY source. External tools are the actual fallbacks when local doesn't apply.
 
-### Tool Priority Order
+When primary MCP servers fail or external search is needed, use this workflow.
+
+### Source Priority Order (Not Fallback Order)
+
+| Priority | Source | Tool | Use When |
+|----------|--------|------|----------|
+| 1 (Best) | Local workspace | grep/read | Project-specific questions |
+| 2 | deepWiki | deepWiki_ask_question | External GitHub repo questions |
+| 3 | Exa | web_search_exa | General web search |
+| 4 | DuckDuckGo | duckduckgo_search | Fallback when Exa unavailable |
+| 5 | webfetch | webfetch | Direct URL access |
+
+### Actual Fallback Process (For External Tools)
 
 | Priority | Tool | MCP Server | Use Case |
 |----------|------|------------|----------|
@@ -362,15 +443,23 @@ When primary MCP servers fail, use this fallback workflow.
 ```
 Start Search
     ↓
-Check Memory Cache
+Is the question project-specific? (this codebase, this project)
+    ↓
+Yes → Search local workspace (BEST TRUTH)
+    ↓
+Local match found?
+    ↓
+Yes → Use local codebase → Cache result → Return
+    ↓ No
+No → Check Memory Cache
     ↓
 Cache hit?
     ↓
 Yes → Use cached routing decision
     ↓
-No → Try Primary Tool (Exa/deepWiki)
+No → Try External Tools (Exa/deepWiki)
     ↓
-Primary tool available?
+External tool available?
     ↓
 Yes → Execute search → Cache result → Return
     ↓
@@ -392,10 +481,12 @@ No → Report clear failure
 ### Memory Caching in Fallback Chain
 
 **Before Any Search:**
-1. Check `intellisearch_cache` in memory
-2. Look for exact query match
-3. Check for semantic similarity (same topic/technology)
-4. If cached repo found → skip detection, use cached routing
+1. Check if query is project-specific → check local workspace first
+2. Check `intellisearch_cache` in memory
+3. Look for exact query match
+4. Check for semantic similarity (same topic/technology)
+5. If cached local match → use local workspace
+6. If cached repo found → skip detection, use cached routing
 
 **After Successful Search:**
 1. Create cache entry with query hash
@@ -415,11 +506,13 @@ No → Report clear failure
   "intellisearch_cache": {
     "[query_hash]": {
       "query": "original query",
-      "tool_used": "exa|deepwiki|duckduckgo|webfetch",
+      "source_type": "local|exa|deepwiki|duckduckgo|webfetch",
+      "tool_used": "local|exa|deepwiki|duckduckgo|webfetch",
+      "local_match": true|false,
       "repo_found": "owner/repo|null",
       "timestamp": "2026-02-01T12:00:00Z",
       "result_summary": "brief summary",
-      "category": "code|news|company|person|research|general"
+      "category": "local|code|news|company|person|research|general"
     }
   }
 }
@@ -449,13 +542,14 @@ After Search:
 
 ### Error Reporting Format
 
-When fallbacks are used, report clearly:
+When searches are performed, report clearly:
 
 ```
 Search Results:
+- Local Workspace: [✓ Match found / ✗ Not project-specific]
 - Primary Tool: Exa MCP [✓ available / ✗ unavailable]
 - Fallback Used: DuckDuckGo [✓ / ✗] → webfetch [✓ / ✗]
-- Results Source: [Exa / DuckDuckGo / webfetch / None]
+- Results Source: [Local/Exa/DuckDuckGo/webfetch/None]
 - Cache Status: [Hit / Miss / Updated]
 
 Summary: [Brief description of results found]
