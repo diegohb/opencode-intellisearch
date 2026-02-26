@@ -1,231 +1,128 @@
 # Fallback Tools Reference
 
-Documentation for fallback tools when primary MCP servers are unavailable.
+Documentation for fallback handling when primary tools are unavailable.
 
 ## Overview
 
-When Exa MCP or deepWiki MCP servers fail or are unavailable, use these fallback tools to continue providing web search capabilities.
+The intellisearch skill routes between three main sources:
+1. **Local workspace** - Primary source for project-specific questions
+2. **deepWiki** - For GitHub repository questions (code-based answers)
+3. **websearch** - OpenCode built-in tool for general queries
 
-## Fallback Chain
+## Source Priority
+
+**NOTE**: Local workspace is NOT a fallback - it is the PRIMARY source.
 
 ```
-Primary:   Exa MCP → deepWiki MCP
-              ↓
-Secondary: DuckDuckGo search
-              ↓
-Tertiary:  webfetch (direct URL access)
-              ↓
-Failure:   Report unavailable
+Priority Order:
+1. LOCAL WORKSPACE - Project-specific questions (always check first)
+2. DEEPWIKI - GitHub repository questions (code > docs)
+3. WEBSEARCH - General knowledge, news, opinions
 ```
 
 ---
 
-## DuckDuckGo Search (Optional)
+## websearch (OpenCode Built-in)
 
-Optional search tool available in some OpenCode configurations. Use when Exa is unavailable and DuckDuckGo is configured.
+Standard OpenCode tool for general web search.
 
-**Availability**: Check if `duckduckgo_search` tool is available in your session before using.
+**Documentation**: https://opencode.ai/docs/tools/#websearch
 
 ### When to Use
 
-- Exa MCP server connection fails
-- Need search without MCP configuration
-- Token budget constraints
-- Quick searches without category filtering
+- General knowledge questions
+- News and current events
+- Company/person research
+- Discovering GitHub repositories (then switch to deepWiki)
+- When deepWiki is unavailable
 
-### Tool: `duckduckgo_search` (If Available)
+### Tool: `websearch`
 
 **Parameters:**
 - `query` (required): Search query string
-- `max_results`: Number of results (default: 5)
 
 **Example Usage:**
 ```json
 {
-  "tool": "duckduckgo_search",
+  "tool": "websearch",
   "params": {
-    "query": "React hooks tutorial",
-    "max_results": 5
+    "query": "React hooks tutorial"
   }
 }
 ```
 
-**Note**: If DuckDuckGo is not available in your session, skip directly to webfetch or report unavailability.
+### GitHub Repo Detection
 
-### Comparison: DuckDuckGo vs Exa
-
-| Feature | DuckDuckGo | Exa |
-|---------|------------|-----|
-| MCP Required | No | Yes |
-| Category Filtering | No | Yes (news, company, etc.) |
-| Time Filtering | No | Yes (maxAgeHours) |
-| Content Modes | Summary only | highlights/text |
-| Code Search | General | Specialized |
-| Cost | Lower | Higher |
-
-### DuckDuckGo Best Practices
-
-1. **Broader queries work better** - No category filters, so include context in query
-2. **More results may be needed** - Less targeted than Exa
-3. **Manual filtering required** - Review results for relevance
-4. **Combine with webfetch** - Use URLs from results for full content
-
-**Good queries:**
-- "React hooks best practices 2025"
-- "Stripe API documentation official"
-- "Python async tutorial site:python.org"
-
-**Poor queries (too narrow):**
-- "React" (too broad without context)
-- Just "hooks" (ambiguous)
-
----
-
-## webfetch
-
-Standard OpenCode tool for fetching content from specific URLs.
-
-### When to Use
-
-- All search tools are unavailable
-- You have known authoritative URLs
-- Partial results contain URLs to explore
-- Need content from specific documentation sites
-
-### Tool: `webfetch`
-
-**Parameters:**
-- `url` (required): Full URL to fetch
-- `format`: Output format - `"markdown"`, `"text"`, or `"html"` (default: markdown)
-
-**Example Usage:**
-```json
-{
-  "tool": "webfetch",
-  "params": {
-    "url": "https://react.dev/docs/hooks-intro",
-    "format": "markdown"
-  }
-}
-```
-
-### Extracting URLs from Failed Attempts
-
-When Exa or DuckDuckGo partially fails but returns URLs:
-
-**1. From Error Messages:**
-- Extract domain from connection errors
-- Attempt direct fetch to main documentation site
-
-**2. From Partial Results:**
-- If search returns URLs but not full content
-- webfetch each URL for complete information
-
-**3. Known Authoritative Sources:**
-
-| Technology | Likely Documentation URL |
-|------------|-------------------------|
-| React | `https://react.dev/docs/[topic]` |
-| Vue | `https://vuejs.org/guide/[topic]` |
-| Next.js | `https://nextjs.org/docs/[topic]` |
-| TypeScript | `https://www.typescriptlang.org/docs/[topic]` |
-| Python | `https://docs.python.org/3/[topic]` |
-| npm package | `https://www.npmjs.com/package/[name]` |
+When websearch finds a GitHub repository, **switch to deepWiki** for code-based answers:
 
 **Example:**
 ```
-User asks about "zod validation"
-
-If search fails:
-  Try: webfetch({
-    url: "https://zod.dev/",
-    format: "markdown"
-  })
+Query: "How does Express.js middleware work?"
+→ websearch finds "expressjs/express"
+→ Switch to deepWiki for code-based answer
+→ deepWiki_ask_question with repo "expressjs/express"
 ```
 
-### webfetch Limitations
-
-- Requires knowing the URL in advance
-- Some sites block automated fetching
-- JavaScript-rendered content may not load
-- Rate limits may apply
+**Why**: Code is always better than docs. deepWiki provides authoritative answers from the actual codebase.
 
 ---
 
-## Complete Fallback Examples
+## deepWiki MCP
 
-### Example 1: Exa Unavailable, Use DuckDuckGo
+Repository-specific Q&A for GitHub projects.
 
-```javascript
-// Primary tool fails
-// User asks: "What are React Server Components?"
+**Documentation**: https://docs.devin.ai/work-with-devin/deepwiki-mcp
 
-// Fallback to DuckDuckGo
-duckduckgo_search({
-  query: "React Server Components explained",
-  max_results: 5
-})
+### When to Use
 
-// Results provide URLs
-// Optionally webfetch key URLs for more detail
-webfetch({
-  url: "https://react.dev/blog/2023/03/22/react-server-components",
-  format: "markdown"
-})
+- Questions about specific GitHub repositories
+- Library/framework implementation details
+- API usage patterns for known packages
+- Installation/setup instructions
+
+### Tool: `deepWiki_ask_question`
+
+**Parameters:**
+- `repoName` (required): Repository in `owner/repo` format
+- `question` (required): Specific question about the repository
+
+**Example Usage:**
+```json
+{
+  "tool": "deepwiki:deepWiki_ask_question",
+  "params": {
+    "repoName": "vercel/next.js",
+    "question": "How do I create a dynamic route with parameters?"
+  }
+}
 ```
 
-### Example 2: All Search Tools Unavailable
+### When deepWiki is Unavailable
 
-```javascript
-// Both Exa and DuckDuckGo fail
-// User asks about "Next.js app router"
-
-// Use known authoritative URL
-webfetch({
-  url: "https://nextjs.org/docs/app",
-  format: "markdown"
-})
-
-// If that fails, try alternative sources
-webfetch({
-  url: "https://github.com/vercel/next.js/tree/canary/docs",
-  format: "markdown"
-})
-```
-
-### Example 3: Partial Results with URLs
-
-```javascript
-// Exa returns connection error but partial results show URLs
-// Results snippet: "See documentation at https://docs.example.com/..."
-
-// Extract and fetch the URL
-webfetch({
-  url: "https://docs.example.com/guide",
-  format: "markdown"
-})
-```
+If deepWiki MCP server is unavailable:
+1. Use websearch results as fallback
+2. Report that deepWiki was unavailable
+3. Continue with websearch findings
 
 ---
 
-## Error Handling for Fallbacks
+## Error Handling
 
-### DuckDuckGo Errors
-
-| Error | Action |
-|-------|--------|
-| No results found | Broaden query, try synonyms |
-| Rate limited | Wait briefly, retry |
-| Connection error | Skip to webfetch |
-
-### webfetch Errors
+### deepWiki Unavailable
 
 | Error | Action |
 |-------|--------|
-| 404 Not Found | Try alternative URL paths |
-| 403 Forbidden | Site blocks automation, try alternative source |
-| Timeout | Retry once, then skip |
-| Content too short | JavaScript-rendered site, try alternative |
+| MCP connection error | Use websearch results |
+| Timeout | Use websearch results |
+| Repo not indexed | Use websearch results |
+
+### websearch Errors
+
+| Error | Action |
+|-------|--------|
+| No results found | Try broader query |
+| Rate limited | Wait and retry |
+| Connection error | Report failure |
 
 ### Reporting Fallback Usage
 
@@ -233,48 +130,48 @@ Always report which tool ultimately provided results:
 
 ```
 Search Results:
-✗ Exa MCP: Unavailable
-✓ DuckDuckGo: 5 results found
-✗ webfetch: Not needed
+- Local Workspace: [✓ Match found / ✗ Not project-specific]
+- deepWiki: [✓ Used / ✗ Unavailable / ✗ Not applicable]
+- websearch: [✓ Used / ✗ Unavailable]
+- Results Source: [Local/deepWiki/websearch/None]
 
-Source: DuckDuckGo (fallback)
-[Results summary]
+Summary: [Brief description of results found]
 ```
 
 ---
 
 ## Decision Matrix
 
-| Situation | Primary | Fallback | Last Resort |
-|-----------|---------|----------|-------------|
-| General web search | Exa | DuckDuckGo | - |
-| GitHub repo docs | deepWiki | Exa + DuckDuckGo | webfetch docs site |
-| News/current events | Exa (category: news) | DuckDuckGo | - |
-| Company research | Exa (category: company) | DuckDuckGo | Company website |
-| Academic research | Exa (category: research paper) | DuckDuckGo | Direct journal URLs |
-| Code examples | Exa | DuckDuckGo | GitHub raw URLs |
+| Situation | Primary | Fallback |
+|-----------|---------|----------|
+| Project-specific code | Local workspace | websearch |
+| GitHub repo docs | deepWiki | websearch |
+| General web search | websearch | - |
+| News/current events | websearch | - |
+| Company research | websearch | - |
+| Academic research | websearch | - |
 
 ---
 
 ## Integration with Memory Caching
 
-When using fallback tools, still cache results:
+When using tools, cache results for reuse:
 
 ```javascript
-// After successful fallback search
+// After successful search
 write_memory({
   key: "intellisearch_cache",
   value: {
     "query_hash_abc123": {
       "query": "React Server Components",
-      "tool_used": "duckduckgo",  // Note fallback tool
-      "repo_found": null,
+      "source_type": "deepwiki",  // or "local" or "websearch"
+      "tool_used": "deepwiki",
+      "repo_found": "facebook/react",
       "timestamp": "2026-02-01T12:00:00Z",
-      "result_summary": "5 results about RSC architecture",
-      "fallback_used": true  // Mark as fallback
+      "result_summary": "Code-based answer about RSC architecture"
     }
   }
 })
 ```
 
-This prevents repeated fallback attempts for the same query.
+This prevents repeated searches for the same query.
