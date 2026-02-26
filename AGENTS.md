@@ -165,17 +165,16 @@ rm C:\dev\projects\playground\aigpt\test-websearch\.opencode\commands\intellisea
 
 ## Helpful Tools
 
-### MCP_DOCKER Tools
-Use these for research and problem-solving:
+### Web Fetching
+Use `webfetch` to retrieve web content for searches:
 
 ```typescript
-// Web search via DuckDuckGo
-MCP_DOCKER_mcp-find({ query: "duckduckgo" })
-MCP_DOCKER_mcp-add({ name: "duckduckgo" })
-MCP_DOCKER_mcp-exec({ name: "search", arguments: { query: "OpenCode plugin config hook" } })
-
-// Fetch documentation
-MCP_DOCKER_mcp-exec({ name: "fetch_content", arguments: { url: "https://opencode.ai/docs/plugins/" } })
+// Fetch documentation pages
+webfetch({ 
+  url: "https://opencode.ai/docs/plugins/",
+  format: "markdown",
+  timeout: 30 
+})
 ```
 
 ### DeepWiki
@@ -188,6 +187,12 @@ deepWiki_ask_question({
   question: "Where does OpenCode load npm plugins from?" 
 })
 ```
+
+### Simplified Workflow
+1. Search with `webfetch` for GitHub repositories (`site:github.com`)
+2. Extract repository names from search results
+3. Use DeepWiki tools to query repositories for answers
+4. Reference: `assets/skills/intellisearch/deepwiki-tools.md`
 
 ## Package Publishing
 
