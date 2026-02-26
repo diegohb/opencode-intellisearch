@@ -105,6 +105,11 @@ Use DeepWiki's `ask_question` tool to query the extracted repositories.
 
 The `repoName` parameter accepts both a string (single repo) and an array of strings (multiple repos).
 
+**Critical format rules:**
+- Single repository: `repoName="owner/repo"`
+- Multiple repositories: `repoName=["owner1/repo1", "owner2/repo2"]`
+- ❌ Wrong: `repoName=["owner/repo"]` (single-item array causes search failure)
+
 ## Step 4: Provide Answer
 
 Interpret DeepWiki responses and provide a clear, actionable answer to the user.
