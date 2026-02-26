@@ -8,7 +8,6 @@ GitHub repository search for OpenCode with automatic DeepWiki integration for te
 - **DeepWiki Integration**: Uses DeepWiki for authoritative Q&A on any GitHub repository
 - **Automatic Repo Detection**: Identifies GitHub repos from search results and maps them to owner/repo format
 - **Simple Workflow**: Search web → Extract GitHub repos → Query DeepWiki → Return results
-- **Optional Fallback**: DuckDuckGo as fallback search when webfetch fails
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 - **TypeScript + ESM**: Built with TypeScript for type safety, uses ESM for OpenCode plugin compatibility
 - **Bun-Native**: Zero build step, runs TypeScript natively with Bun
@@ -61,9 +60,6 @@ Once installed, the plugin automatically adds the `/intellisearch` command to Op
 **Required:**
 - **deepwiki** - Repository Q&A ([docs](https://docs.devin.ai/work-with-devin/deepwiki-mcp))
 
-**Optional:**
-- **duckduckgo** - Fallback search
-
 ### Setup MCP Servers
 
 Configure in `~/.config/opencode/opencode.json` or project `opencode.json`:
@@ -113,10 +109,6 @@ Configure in `~/.config/opencode/opencode.json` or project `opencode.json`:
 **"deepWiki unavailable" - Falling back to webfetch:**
 - Verify deepWiki MCP server is configured in opencode.json
 - Check MCP server status with `/mcp status`
-
-**"webfetch failed" - Falling back to DuckDuckGo:**
-- Verify internet connectivity
-- Check if the search URL is accessible
 
 **All tools failed:**
 - Try rephrasing your query

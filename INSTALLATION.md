@@ -19,7 +19,6 @@ Detailed installation instructions for intellisearch extension for OpenCode.
 ### Required
 
 - [OpenCode](https://opencode.ai) installed and running
-- Exa API key - Get from [Exa Dashboard](https://dashboard.exa.ai)
 - deepWiki access - Register at [docs.opencod.ai](https://docs.opencod.ai)
 
 ### Runtime
@@ -261,26 +260,6 @@ If set, global installs will use this directory instead of `~/.config/opencode/`
 
 ## MCP Server Setup
 
-### Exa MCP Server
-
-1. Get API key from [Exa Dashboard](https://dashboard.exa.ai)
-
-2. Configure in `~/.config/opencode/opencode.json` or project `opencode.json`:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcpServers": {
-    "exa": {
-      "type": "http",
-      "url": "https://mcp.exa.ai/mcp?exaApiKey=YOUR_EXA_API_KEY"
-    }
-  }
-}
-```
-
-3. Restart OpenCode to apply changes
-
 ### deepWiki MCP Server
 
 1. Register at [docs.opencod.ai](https://docs.opencod.ai)
@@ -304,19 +283,6 @@ If set, global installs will use this directory instead of `~/.config/opencode/`
 ```
 
 4. Restart OpenCode
-
-### Optional: DuckDuckGo
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcpServers": {
-    "duckduckgo": {
-      "command": "duckduckgo-search"
-    }
-  }
-}
-```
 
 ### Optional: Memory Tool
 
@@ -376,7 +342,7 @@ In OpenCode TUI:
 /mcp status
 ```
 
-Verify `exa` and `deepwiki` servers are running.
+Verify `deepwiki` server is running.
 
 ## Uninstallation
 
@@ -505,19 +471,6 @@ npm run build
 ```
 
 ### MCP Server Issues
-
-#### "Exa MCP unavailable" in searches
-
-1. Verify API key is correct
-2. Check opencode.json configuration
-3. Test Exa API directly:
-   ```bash
-   curl -X POST https://api.exa.ai/search \
-     -H "x-api-key: YOUR_API_KEY" \
-     -H "Content-Type: application/json" \
-     -d '{"query": "test", "numResults": 1}'
-   ```
-4. Restart OpenCode
 
 #### "deepWiki timeout" errors
 

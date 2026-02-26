@@ -41,7 +41,7 @@ Ask specific questions about a repository.
 
 ## When to Use deepWiki
 
-Use deepWiki instead of Exa when:
+Use deepWiki when:
 
 - Query is about a **specific GitHub repository**
 - You need **authoritative code answers** (from official docs)
@@ -109,23 +109,12 @@ Always use `owner/repo` format:
 }
 ```
 
-## Comparison: deepWiki vs Exa for Code
-
-| Factor | deepWiki | Exa |
-|--------|----------|-----|
-| **Source** | Official documentation | Web results, blogs, forums |
-| **Accuracy** | High (authoritative) | Variable |
-| **Timeliness** | Docs may lag releases | Real-time |
-| **Use case** | Specific repo questions | Broad tech trends, opinions |
-| **Token efficiency** | Often more concise | Depends on content mode |
-
 ## Best Practices
 
 1. **Verify repo exists** on GitHub before calling deepWiki
 2. **Use `ask_question`** for specific queries (most efficient)
 3. **Use `read_wiki_contents`** only when you need the full documentation
 4. **Check `read_wiki_structure`** first when exploring unfamiliar repos
-5. **Fall back to Exa** if deepWiki returns no results (repo may not be indexed)
 
 ## Limitations
 

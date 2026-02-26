@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- Exa integration and API key requirements
+- DuckDuckGo fallback search mechanism
+- Memory caching for follow-up queries
+
+### Changed
+- **BREAKING**: Simplified to GitHub repository search + DeepWiki workflow
+- Updated documentation (README.md, INSTALLATION.md, AGENTS.md)
+- Cleaned up unused reference files
+- Updated command to be simple skill wrapper with agent: general and subtask: true
+
 ## [0.2.0] - 2025-02-03
 
 ### Changed
