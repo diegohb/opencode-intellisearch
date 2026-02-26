@@ -53,7 +53,7 @@ describe("plugin", () => {
     const pluginInstance1 = await plugin({
       directory: TEST_DIR,
     } as any);
-    await pluginInstance1.config?.();
+    await pluginInstance1.config?.({} as any);
 
     // Record modification time
     const skillsDir = path.join(TEST_DIR, ".opencode", "skills", "intellisearch");
