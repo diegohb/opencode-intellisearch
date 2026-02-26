@@ -4,6 +4,6 @@ agent: general
 subtask: true
 ---
 
-Use the intellisearch skill to answer this query:
+Use the `skill` tool to load the `intellisearch` skill, then use it to answer this query:
 
 $ARGUMENTS
