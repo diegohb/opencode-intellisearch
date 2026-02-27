@@ -2,7 +2,7 @@ import type { Plugin } from "@opencode-ai/plugin";
 import { mkdir, readdir, copyFile } from "node:fs/promises";
 import path from "node:path";
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 
 async function copyDir(src: string, dest: string): Promise<void> {
   await mkdir(dest, { recursive: true });
