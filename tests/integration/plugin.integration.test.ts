@@ -46,7 +46,7 @@ describe("integration", () => {
       expect(skillEntries).toContain(".version");
 
       // Verify commands file
-      const commandsFile = path.join(opencodeDir, "commands", "intellisearch.md");
+      const commandsFile = path.join(opencodeDir, "commands", "search-intelligently.md");
       const commandsStats = await stat(commandsFile);
       expect(commandsStats.isFile()).toBe(true);
     });
@@ -79,16 +79,16 @@ describe("integration", () => {
       await pluginInstance.config?.({} as any);
 
       // Verify command file content
-      const commandFile = path.join(TEST_PROJECT_DIR, ".opencode", "commands", "intellisearch.md");
+      const commandFile = path.join(TEST_PROJECT_DIR, ".opencode", "commands", "search-intelligently.md");
       const commandContent = await readFile(commandFile, "utf-8");
-      
+
       // Should have frontmatter
       expect(commandContent).toContain("---");
       expect(commandContent).toContain("description:");
-      expect(commandContent).toContain("temperature:");
+      expect(commandContent).toContain("agent:");
       
-      // Should have command template
-      expect(commandContent.length).toBeGreaterThan(500);
+      // Should have command template (simplified wrapper)
+      expect(commandContent.length).toBeGreaterThan(100);
     });
   });
 
@@ -146,7 +146,7 @@ describe("integration", () => {
         .then(() => true)
         .catch(() => false);
       
-      const commandsExist = await stat(path.join(TEST_PROJECT_DIR, ".opencode", "commands", "intellisearch.md"))
+      const commandsExist = await stat(path.join(TEST_PROJECT_DIR, ".opencode", "commands", "search-intelligently.md"))
         .then(() => true)
         .catch(() => false);
 

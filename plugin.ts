@@ -31,8 +31,8 @@ const plugin: Plugin = async ({ directory }) => ({
     );
     await mkdir(path.join(targetDir, "commands"), { recursive: true });
     await copyFile(
-      path.join(pkgDir, "assets", "commands", "intellisearch.md"),
-      path.join(targetDir, "commands", "intellisearch.md"),
+      path.join(pkgDir, "assets", "commands", "search-intelligently.md"),
+      path.join(targetDir, "commands", "search-intelligently.md"),
     );
 
     await Bun.write(marker, VERSION);

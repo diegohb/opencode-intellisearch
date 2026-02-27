@@ -38,7 +38,7 @@ describe("plugin", () => {
     expect(skillsEntries).toContain("SKILL.md");
 
     // Verify commands file exists
-    const commandsFile = path.join(TEST_DIR, ".opencode", "commands", "intellisearch.md");
+    const commandsFile = path.join(TEST_DIR, ".opencode", "commands", "search-intelligently.md");
     const commandsContent = await readFile(commandsFile, "utf-8");
     expect(commandsContent.length).toBeGreaterThan(0);
 

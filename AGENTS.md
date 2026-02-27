@@ -29,7 +29,7 @@ bun unlink
 │   │   └── intellisearch/
 │   │       └── SKILL.md
 │   └── commands/
-│       └── intellisearch.md
+│       └── search-intelligently.md
 ├── plugin.ts         # OpenCode plugin with config hook (~45 lines)
 ├── index.ts          # Plugin re-export
 ├── package.json      # Bun-native configuration
@@ -144,8 +144,8 @@ This method tests the plugin directly from the source directory without publishi
    ls .opencode/skills/intellisearch/
    # Expected: SKILL.md, .version
    
-   # Check commands
-   ls .opencode/commands/intellisearch.md
+    # Check commands
+    ls .opencode/commands/search-intelligently.md
    ```
 
 5. **Verify Version Marker**:
@@ -159,7 +159,7 @@ This method tests the plugin directly from the source directory without publishi
 # 1. Remove plugin from opencode.json
 # 2. Clean test project assets
 rm -rf C:\dev\projects\playground\aigpt\test-websearch\.opencode\skills\intellisearch
-rm C:\dev\projects\playground\aigpt\test-websearch\.opencode\commands\intellisearch.md
+rm C:\dev\projects\playground\aigpt\test-websearch\.opencode\commands\search-intelligently.md
 # Or simply: rm -rf .opencode/
 ```
 
@@ -216,4 +216,4 @@ bun publish
 
 ### Asset Installation
 Source: `assets/` (published directly in package)
-→ Plugin copies to: `.opencode/skills/intellisearch/` and `.opencode/commands/intellisearch.md`
+→ Plugin copies to: `.opencode/skills/intellisearch/` and `.opencode/commands/search-intelligently.md`

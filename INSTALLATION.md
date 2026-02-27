@@ -176,7 +176,7 @@ If set, global installs will use this directory instead of `~/.config/opencode/`
 │       ├── SKILL.md
 │       └── references/
 └── commands/
-    └── intellisearch.md
+    └── search-intelligently.md
 ```
 
 **Local:**
@@ -187,7 +187,7 @@ If set, global installs will use this directory instead of `~/.config/opencode/`
 │       ├── SKILL.md
 │       └── references/
 └── commands/
-    └── intellisearch.md
+    └── search-intelligently.md
 ```
 
 ### Pros & Cons
@@ -305,22 +305,22 @@ If set, global installs will use this directory instead of `~/.config/opencode/`
 ```bash
 # Global installation
 ls -la ~/.config/opencode/skills/intellisearch/
-ls -la ~/.config/opencode/commands/intellisearch.md
+ls -la ~/.config/opencode/commands/search-intelligently.md
 
 # Local installation
 ls -la .opencode/skills/intellisearch/
-ls -la .opencode/commands/intellisearch.md
+ls -la .opencode/commands/search-intelligently.md
 ```
 
 **PowerShell:**
 ```powershell
 # Global installation
 Get-ChildItem $env:USERPROFILE\.config\opencode\skills\intellisearch
-Get-ChildItem $env:USERPROFILE\.config\opencode\commands\intellisearch.md
+Get-ChildItem $env:USERPROFILE\.config\opencode\commands\search-intelligently.md
 
 # Local installation
 Get-ChildItem .opencode\skills\intellisearch
-Get-ChildItem .opencode\commands\intellisearch.md
+Get-ChildItem .opencode\commands\search-intelligently.md
 ```
 
 ### Test in OpenCode
@@ -382,9 +382,9 @@ bun remove -g opencode-intellisearch
 
 Files are automatically removed from:
 - `~/.config/opencode/skills/intellisearch/`
-- `~/.config/opencode/commands/intellisearch.md`
+- `~/.config/opencode/commands/search-intelligently.md`
 - Or `.opencode/skills/intellisearch/`
-- Or `.opencode/commands/intellisearch.md`
+- Or `.opencode/commands/search-intelligently.md`
 
 ### Manual Removal
 
@@ -393,25 +393,25 @@ If automated removal fails, manually remove files:
 **Global (Bash):**
 ```bash
 rm -rf ~/.config/opencode/skills/intellisearch
-rm -f ~/.config/opencode/commands/intellisearch.md
+rm -f ~/.config/opencode/commands/search-intelligently.md
 ```
 
 **Local (Bash):**
 ```bash
 rm -rf .opencode/skills/intellisearch
-rm -f .opencode/commands/intellisearch.md
+rm -f .opencode/commands/search-intelligently.md
 ```
 
 **Global (PowerShell):**
 ```powershell
 Remove-Item -Recurse -Force $env:USERPROFILE\.config\opencode\skills\intellisearch
-Remove-Item -Force $env:USERPROFILE\.config\opencode\commands\intellisearch.md
+Remove-Item -Force $env:USERPROFILE\.config\opencode\commands\search-intelligently.md
 ```
 
 **Local (PowerShell):**
 ```powershell
 Remove-Item -Recurse -Force .opencode\skills\intellisearch
-Remove-Item -Force .opencode\commands\intellisearch.md
+Remove-Item -Force .opencode\commands\search-intelligently.md
 ```
 
 ## Troubleshooting
@@ -516,7 +516,7 @@ npm run build
 chmod -R 755 ~/.config/opencode/skills/intellisearch
 
 # Fix command file
-chmod 644 ~/.config/opencode/commands/intellisearch.md
+chmod 644 ~/.config/opencode/commands/search-intelligently.md
 ```
 
 ### Windows Path Issues
@@ -540,14 +540,14 @@ If all automated methods fail, manually copy files from `dist/` directory:
 ```bash
 mkdir -p ~/.config/opencode/skills ~/.config/opencode/commands
 cp -r dist/skills/intellisearch ~/.config/opencode/skills/
-cp dist/commands/intellisearch.md ~/.config/opencode/commands/
+cp dist/commands/search-intelligently.md ~/.config/opencode/commands/
 ```
 
 **Linux/macOS Local:**
 ```bash
 mkdir -p .opencode/skills .opencode/commands
 cp -r dist/skills/intellisearch .opencode/skills/
-cp dist/commands/intellisearch.md .opencode/commands/
+cp dist/commands/search-intelligently.md .opencode/commands/
 ```
 
 **Windows Global (PowerShell):**
@@ -555,7 +555,7 @@ cp dist/commands/intellisearch.md .opencode/commands/
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\opencode\skills"
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config\opencode\commands"
 Copy-Item -Recurse -Force dist\skills\intellisearch "$env:USERPROFILE\.config\opencode\skills\"
-Copy-Item -Force dist\commands\intellisearch.md "$env:USERPROFILE\.config\opencode\commands\"
+Copy-Item -Force dist\commands\search-intelligently.md "$env:USERPROFILE\.config\opencode\commands\"
 ```
 
 **Windows Local (PowerShell):**
@@ -563,7 +563,7 @@ Copy-Item -Force dist\commands\intellisearch.md "$env:USERPROFILE\.config\openco
 New-Item -ItemType Directory -Force -Path .opencode\skills
 New-Item -ItemType Directory -Force -Path .opencode\commands
 Copy-Item -Recurse -Force dist\skills\intellisearch .opencode\skills\
-Copy-Item -Force dist\commands\intellisearch.md .opencode\commands\
+Copy-Item -Force dist\commands\search-intelligently.md .opencode\commands\
 ```
 
 ## Development

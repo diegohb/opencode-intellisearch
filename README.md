@@ -39,14 +39,14 @@ Then add to your project's `opencode.json`:
 
 ## 📖 Usage
 
-Once installed, the plugin automatically adds the `/intellisearch` command to OpenCode:
+Once installed, the plugin automatically adds the `/search-intelligently` command to OpenCode:
 
 ```bash
-/intellisearch How does React useEffect work?
-/intellisearch Tools for validating semver specification strings
-/intellisearch Best way to handle file uploads in Next.js
-/intellisearch Compare Zod vs Yup for validation libraries
-/intellisearch github:vercel/next.js app router patterns
+/search-intelligently How does React useEffect work?
+/search-intelligently Tools for validating semver specification strings
+/search-intelligently Best way to handle file uploads in Next.js
+/search-intelligently Compare Zod vs Yup for validation libraries
+/search-intelligently github:vercel/next.js app router patterns
 ```
 
 ## 🔧 Requirements
