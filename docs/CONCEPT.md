@@ -40,3 +40,21 @@
 > Use DeepWiki `ask_question` tool, repoName parameter takes string array for multiple repositories.
 > `question` parameter = "Is there a package typescript-compatible package that can be installed and used locally on a web page to validate semver strings?"
 > Model interprets yes/no or DeepWiki-inferred answers and returns best answer back to user.
+
+## Baseline Behavior Prompt Example
+In a new agent session with no skills loaded. Assign this prompt to a subagent:
+
+> @general search the internet, do not use internal knowledge. show me 3 graph db solutions that fit best with my application and provide analysis (pros/cons). consider tech stack and current deployment model - preferring client-side solution over backend. 
+> frontend: vitejs + aurelia 2 
+> backend: dotnet 9 c# webapi
+
+Using MiniMax-M2.5, decently capable model, the work required over 10k tokens! The naive, brute-force approach. The conclusion and recommendation was not bad but this is not about the WHAT... it's the HOW we're interested in and efficiency, or lack there of.
+
+See full transcript [here](baseline-naive-transcript.md).
+Tokens: 11719
+Model: MiniMax-M2.5
+
+## v0.3.0 vs Baseline
+Transcript: [here](intellisearch-v0_3_0-transcript.md)
+Tokens: 12652
+Model: MiniMax-M2.5
