@@ -3,6 +3,12 @@
   "version": "0.3.0",
   "type": "module",
   "module": "index.ts",
+  "publisher": "Expert Vision Software",
+  "author": "Expert Vision Support <support@expertvision.software>",
+  "bugs": {
+    "url": "https://github.com/diegohb/opencode-intellisearch/issues",
+    "email": "support@expertvisionsoftware.com"
+  },
   "license": "MIT",
   "files": [
     "index.ts",
