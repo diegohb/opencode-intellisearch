@@ -38,14 +38,14 @@ describe("plugin", () => {
     expect(skillsEntries).toContain("SKILL.md");
 
     // Verify commands file exists
-    const commandsFile = path.join(TEST_DIR, ".opencode", "commands", "intellisearch.md");
+    const commandsFile = path.join(TEST_DIR, ".opencode", "commands", "search-intelligently.md");
     const commandsContent = await readFile(commandsFile, "utf-8");
     expect(commandsContent.length).toBeGreaterThan(0);
 
     // Verify version marker exists
     const versionFile = path.join(skillsDir, ".version");
     const version = await readFile(versionFile, "utf-8");
-    expect(version.trim()).toBe("0.2.0");
+    expect(version.trim()).toBe("0.3.0");
   });
 
   test("should skip installation if version marker matches", async () => {
@@ -53,7 +53,7 @@ describe("plugin", () => {
     const pluginInstance1 = await plugin({
       directory: TEST_DIR,
     } as any);
-    await pluginInstance1.config?.();
+    await pluginInstance1.config?.({} as any);
 
     // Record modification time
     const skillsDir = path.join(TEST_DIR, ".opencode", "skills", "intellisearch");
@@ -85,7 +85,7 @@ describe("plugin", () => {
 
     // Verify version was updated
     const version = await readFile(versionFile, "utf-8");
-    expect(version.trim()).toBe("0.2.0");
+    expect(version.trim()).toBe("0.3.0");
   });
 
   test("should handle missing assets gracefully", async () => {

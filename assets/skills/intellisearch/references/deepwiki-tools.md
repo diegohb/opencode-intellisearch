@@ -33,15 +33,23 @@ Ask specific questions about a repository.
 
 **Parameters:**
 - `repoName` (required): Repository in `owner/repo` format
+  - **Single repo**: Use string: `"owner/repo"`
+  - **Multiple repos**: Use array: `["owner1/repo1", "owner2/repo2"]`
+  - **Critical**: Do not pass single-item array like `["owner/repo"]` for one repo
 - `question` (required): Specific question about the repository
 
 **Returns:** Targeted answer based on repository documentation.
 
 **Use when:** You have a specific question and want a direct answer.
 
+**Important format rules:**
+- Single repository: `repoName="anomalyco/opencode"`
+- Multiple repositories: `repoName=["anomalyco/opencode", "vercel/next.js"]`
+- ❌ Wrong: `repoName=["anomalyco/opencode"]` (single-item array causes search failure)
+
 ## When to Use deepWiki
 
-Use deepWiki instead of Exa when:
+Use deepWiki when:
 
 - Query is about a **specific GitHub repository**
 - You need **authoritative code answers** (from official docs)
@@ -109,23 +117,16 @@ Always use `owner/repo` format:
 }
 ```
 
-## Comparison: deepWiki vs Exa for Code
-
-| Factor | deepWiki | Exa |
-|--------|----------|-----|
-| **Source** | Official documentation | Web results, blogs, forums |
-| **Accuracy** | High (authoritative) | Variable |
-| **Timeliness** | Docs may lag releases | Real-time |
-| **Use case** | Specific repo questions | Broad tech trends, opinions |
-| **Token efficiency** | Often more concise | Depends on content mode |
-
 ## Best Practices
 
 1. **Verify repo exists** on GitHub before calling deepWiki
 2. **Use `ask_question`** for specific queries (most efficient)
 3. **Use `read_wiki_contents`** only when you need the full documentation
 4. **Check `read_wiki_structure`** first when exploring unfamiliar repos
-5. **Fall back to Exa** if deepWiki returns no results (repo may not be indexed)
+5. **Use string for single repo, array for multiple repos** in `repoName` parameter:
+   - Correct: `repoName="owner/repo"` for single repository
+   - Correct: `repoName=["owner1/repo1", "owner2/repo2"]` for multiple repositories
+   - ❌ Wrong: `repoName=["owner/repo"]` for single repository (causes search failure)
 
 ## Limitations
 

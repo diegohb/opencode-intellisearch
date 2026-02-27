@@ -29,7 +29,7 @@ bun unlink
 │   │   └── intellisearch/
 │   │       └── SKILL.md
 │   └── commands/
-│       └── intellisearch.md
+│       └── search-intelligently.md
 ├── plugin.ts         # OpenCode plugin with config hook (~45 lines)
 ├── index.ts          # Plugin re-export
 ├── package.json      # Bun-native configuration
@@ -144,8 +144,8 @@ This method tests the plugin directly from the source directory without publishi
    ls .opencode/skills/intellisearch/
    # Expected: SKILL.md, .version
    
-   # Check commands
-   ls .opencode/commands/intellisearch.md
+    # Check commands
+    ls .opencode/commands/search-intelligently.md
    ```
 
 5. **Verify Version Marker**:
@@ -159,23 +159,22 @@ This method tests the plugin directly from the source directory without publishi
 # 1. Remove plugin from opencode.json
 # 2. Clean test project assets
 rm -rf C:\dev\projects\playground\aigpt\test-websearch\.opencode\skills\intellisearch
-rm C:\dev\projects\playground\aigpt\test-websearch\.opencode\commands\intellisearch.md
+rm C:\dev\projects\playground\aigpt\test-websearch\.opencode\commands\search-intelligently.md
 # Or simply: rm -rf .opencode/
 ```
 
 ## Helpful Tools
 
-### MCP_DOCKER Tools
-Use these for research and problem-solving:
+### Web Fetching
+Use `webfetch` to retrieve web content for searches:
 
 ```typescript
-// Web search via DuckDuckGo
-MCP_DOCKER_mcp-find({ query: "duckduckgo" })
-MCP_DOCKER_mcp-add({ name: "duckduckgo" })
-MCP_DOCKER_mcp-exec({ name: "search", arguments: { query: "OpenCode plugin config hook" } })
-
-// Fetch documentation
-MCP_DOCKER_mcp-exec({ name: "fetch_content", arguments: { url: "https://opencode.ai/docs/plugins/" } })
+// Fetch documentation pages
+webfetch({ 
+  url: "https://opencode.ai/docs/plugins/",
+  format: "markdown",
+  timeout: 30 
+})
 ```
 
 ### DeepWiki
@@ -188,6 +187,12 @@ deepWiki_ask_question({
   question: "Where does OpenCode load npm plugins from?" 
 })
 ```
+
+### Simplified Workflow
+1. Search with `webfetch` for GitHub repositories (`site:github.com`)
+2. Extract repository names from search results
+3. Use DeepWiki tools to query repositories for answers
+4. Reference: `assets/skills/intellisearch/deepwiki-tools.md`
 
 ## Package Publishing
 
@@ -211,4 +216,4 @@ bun publish
 
 ### Asset Installation
 Source: `assets/` (published directly in package)
-→ Plugin copies to: `.opencode/skills/intellisearch/` and `.opencode/commands/intellisearch.md`
+→ Plugin copies to: `.opencode/skills/intellisearch/` and `.opencode/commands/search-intelligently.md`

@@ -98,7 +98,7 @@ metadata:
 
 ### Command Development
 
-Commands are defined in `assets/commands/intellisearch.md`.
+Commands are defined in `assets/commands/search-intelligently.md`.
 
 **Command Structure:**
 
@@ -190,7 +190,7 @@ bun link opencode-intellisearch
 4. Verify assets installed:
    ```bash
    ls .opencode/skills/intellisearch/
-   ls .opencode/commands/intellisearch.md
+    ls .opencode/commands/search-intelligently.md
    ```
 
 ### Test Cross-Platform

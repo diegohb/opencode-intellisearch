@@ -1,14 +1,13 @@
 # intellisearch
 
-Intelligent web search routing for OpenCode with automatic tool selection, graceful fallbacks, and memory caching.
+GitHub repository search for OpenCode with automatic DeepWiki integration for technical answers.
 
 ## ✨ Features
 
-- **Smart Routing**: Automatically selects best tool (Exa, deepWiki, DuckDuckGo, or webfetch) based on query type
-- **GitHub Repository Detection**: Checks for GitHub repos for code/technology queries and routes to deepWiki for authoritative answers
-- **Token Optimization**: Uses fast checks and highlights to minimize token usage
-- **Graceful Fallbacks**: Falls back through DuckDuckGo and webfetch when primary tools unavailable
-- **Memory Caching**: Caches search results for faster follow-up queries (optional)
+- **GitHub-First Search**: Searches for GitHub repositories and extracts technical answers directly from code
+- **DeepWiki Integration**: Uses DeepWiki for authoritative Q&A on any GitHub repository
+- **Automatic Repo Detection**: Identifies GitHub repos from search results and maps them to owner/repo format
+- **Simple Workflow**: Search web → Extract GitHub repos → Query DeepWiki → Return results
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 - **TypeScript + ESM**: Built with TypeScript for type safety, uses ESM for OpenCode plugin compatibility
 - **Bun-Native**: Zero build step, runs TypeScript natively with Bun
@@ -40,13 +39,14 @@ Then add to your project's `opencode.json`:
 
 ## 📖 Usage
 
-Once installed, the plugin automatically adds the `/intellisearch` command to OpenCode:
+Once installed, the plugin automatically adds the `/search-intelligently` command to OpenCode:
 
 ```bash
-/intellisearch How does React useEffect work?
-/intellisearch Latest AI announcements from OpenAI
-/intellisearch github:vercel/next.js app router
-/intellisearch Do people prefer Zod or Yup for validation?
+/search-intelligently How does React useEffect work?
+/search-intelligently Tools for validating semver specification strings
+/search-intelligently Best way to handle file uploads in Next.js
+/search-intelligently Compare Zod vs Yup for validation libraries
+/search-intelligently github:vercel/next.js app router patterns
 ```
 
 ## 🔧 Requirements
@@ -58,12 +58,7 @@ Once installed, the plugin automatically adds the `/intellisearch` command to Op
 ### MCP Servers
 
 **Required:**
-- **exa** - Primary web search ([docs](https://docs.exa.ai/reference/exa-mcp))
-- **deepwiki** - Repository Q&A ([docs](https://docs.opencod.ai))
-
-**Optional:**
-- **duckduckgo** - Fallback search
-- **memory** - Query result caching
+- **deepwiki** - Repository Q&A ([docs](https://docs.devin.ai/work-with-devin/deepwiki-mcp))
 
 ### Setup MCP Servers
 
@@ -73,15 +68,8 @@ Configure in `~/.config/opencode/opencode.json` or project `opencode.json`:
 {
   "$schema": "https://opencode.ai/config.json",
   "mcpServers": {
-    "exa": {
-      "type": "http",
-      "url": "https://mcp.exa.ai/mcp?exaApiKey=YOUR_API_KEY"
-    },
     "deepwiki": {
-      "command": "deepwiki",
-      "env": {
-        "DEEPWIKI_API_KEY": "YOUR_API_KEY"
-      }
+      "url": "https://mcp.deepwiki.com/mcp"
     }
   }
 }
@@ -89,25 +77,12 @@ Configure in `~/.config/opencode/opencode.json` or project `opencode.json`:
 
 ## 🧠 How It Works
 
-### Smart Routing Decision Tree
+### Simple Linear Workflow
 
-1. **Query Classification** → Code/Tech, News, Company, Person, Research, General
-2. **Repository Detection** (for code queries) → Fast Exa check for GitHub repos
-3. **Route to Best Tool**:
-   - GitHub repo found + factual question → **deepWiki** (authoritative)
-   - No repo OR opinion/comparison → **Exa** (community perspectives)
-   - News/current events → **Exa** with news category
-   - Primary tool unavailable → **DuckDuckGo** → **webfetch**
-
-### Fallback Chain
-
-```
-Primary (Exa/deepWiki)
-    ↓
-Secondary (DuckDuckGo)
-    ↓
-Tertiary (webfetch)
-```
+1. **Search the Web** → Uses webfetch to search for relevant content (prioritizes GitHub repositories)
+2. **Extract Repositories** → Scans search results for GitHub URLs and maps to owner/repo format
+3. **Query DeepWiki** → Uses DeepWiki to ask questions about detected repositories
+4. **Return Results** → Presents authoritative answers from repository documentation and code
 
 ## 📚 Documentation
 
@@ -131,13 +106,9 @@ Tertiary (webfetch)
 
 ### Search Issues
 
-**"Exa MCP unavailable" - Falling back to DuckDuckGo:**
-- Configure Exa MCP server in opencode.json
-- Check EXA_API_KEY environment variable
-
-**"deepWiki timeout" - Falling back to Exa:**
-- Verify deepWiki MCP server is running
-- Check DEEPWIKI_API_KEY
+**"deepWiki unavailable" - Falling back to webfetch:**
+- Verify deepWiki MCP server is configured in opencode.json
+- Check MCP server status with `/mcp status`
 
 **All tools failed:**
 - Try rephrasing your query
@@ -184,7 +155,6 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md)
 ## 🙏 Acknowledgments
 
 Built with:
-- [Exa AI](https://exa.ai) - Neural search engine
-- [deepWiki](https://docs.opencod.ai) - Repository intelligence
+- [DeepWiki](https://docs.devin.ai/work-with-devin/deepwiki-mcp) - Repository intelligence
 - [OpenCode](https://opencode.ai) - AI coding environment
 - [Bun](https://bun.sh) - Fast JavaScript runtime

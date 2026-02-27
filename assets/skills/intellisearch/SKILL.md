@@ -1,208 +1,142 @@
 ---
 name: intellisearch
-description: Intelligent web search routing with automatic fallback handling and memory caching. Selects between Exa web search, deepWiki repository Q&A, DuckDuckGo, and webfetch based on query type and tool availability. Use for all web searches, code questions, documentation lookups, and research tasks.
+description: Searches for technical answers by finding GitHub repositories and querying them with DeepWiki. Use when users ask technical questions about frameworks, libraries, APIs, or need documentation from code repositories.
 license: MIT
 compatibility: opencode
 metadata:
   audience: agents
-  topic: intelligent-search
+  topic: github-repository-search
 ---
 
 ## When to Use
 
 Auto-trigger this skill when users ask about:
 - Code/technology questions (frameworks, libraries, APIs)
-- Current events or time-sensitive information
-- Company or person research
-- Academic/research queries
-- General knowledge requiring external sources
-- When uncertain if information exists in training data
+- Documentation from code repositories
+- Implementation details or usage examples
+- Specific open-source projects
 
-## Required MCP Servers
+## Core Principles
 
-- **exa** - Web search with category filters (news, company, people, research paper)
-- **deepwiki** - Repository-specific documentation Q&A for GitHub projects
+1. Technical answers are best sourced directly from code repositories
+2. Most technical reference sources exist as GitHub repositories
+3. DeepWiki provides the best way to query GitHub repositories
 
-## Smart Routing Overview
+## Required Tools
+
+- **webfetch** - Fetch content from URLs and search engines
+- **DeepWiki** - Repository-specific documentation Q&A for GitHub projects
+
+## Workflow
+
+Follow this linear process:
 
 ```
-QUERY → Classify → Route
-
-Code/Tech? → Check for GitHub repo → Repo found? → deepWiki (authoritative)
-                                      ↓ No repo
-News?      → Exa (category: news)          → Exa (community perspectives)
-Company?   → Exa (category: company)
-Person?    → Exa (category: people)
-Research?  → Exa (category: research paper)
-General?   → Exa (web_search_exa)
+1. User asks technical question
+       ↓
+2. Search with site:github.com pattern
+       ↓
+3. Extract GitHub repository references
+       ↓
+4. Map to {owner}/{repo} format
+       ↓
+5. Query repositories with DeepWiki
+       ↓
+6. Provide answer based on results
 ```
 
-**Special Rule**: Queries with category "github" redirect to deepWiki.
+## Step 1: Search for GitHub Repositories
 
-## Quick Start
+When a user asks a technical question, construct a search query that targets GitHub repositories directly.
 
-**Code/technology question:**
+**Example query:**
+```
+User: "How do I validate semver strings in TypeScript?"
+Search query: "site:github.com semver validation typescript"
+```
+
+Use webfetch to search:
 ```json
 {
-  "tool": "exa:web_search_exa",
-  "params": {
-    "query": "technology github",
-    "type": "fast",
-    "num_results": 3
-  }
-}
-```
-If repo found → use `deepwiki:deepWiki_ask_question`
-
-**News query:**
-```json
-{
-  "tool": "exa:web_search_exa",
-  "params": {
-    "query": "breaking news topic",
-    "category": "news",
-    "maxAgeHours": 48
-  }
-}
-```
-
-**Company research:**
-```json
-{
-  "tool": "exa:web_search_exa",
-  "params": {
-    "query": "company name",
-    "category": "company"
-  }
+  "url": "https://www.google.com/search?q=site:github.com%20semver%20validation%20typescript",
+  "format": "markdown",
+  "timeout": 10
 }
 ```
 
-**Repository documentation:**
+## Step 2: Extract GitHub Repository References
+
+From the search results, extract GitHub repository URLs using regex patterns.
+
+**Detect these patterns:**
+- `https://github.com/{owner}/{repo}` - Standard repository URL
+- `https://{owner}.github.io/{repo}` - GitHub Pages site
+
+**Example regex patterns:**
+```
+github\.com/([\w-]+)/([\w.-]+)
+([\w-]+)\.github\.io/([\w.-]+)
+```
+
+**Extraction examples:**
+- `https://github.com/npm/node-semver` → `npm/node-semver`
+- `https://jubianchi.github.io/semver-check` → `jubianchi/semver-check`
+- `https://github.com/mattfarina/semver-isvalid` → `mattfarina/semver-isvalid`
+
+## Step 3: Query Repositories with DeepWiki
+
+Use DeepWiki's `ask_question` tool to query the extracted repositories.
+
+**Single repository:**
 ```json
 {
-  "tool": "deepwiki:deepWiki_ask_question",
-  "params": {
-    "repoName": "owner/repo",
-    "question": "How do I implement X?"
-  }
+  "repoName": "npm/node-semver",
+  "question": "How do I validate semver strings in TypeScript?"
 }
 ```
 
-## Fallback Strategy
-
-When primary MCP servers fail or are unavailable, use this fallback chain:
-
-**Priority Order:**
-1. **Primary**: Exa MCP (`exa:web_search_exa`, etc.)
-2. **Secondary**: DuckDuckGo tools (if available)
-3. **Tertiary**: webfetch (standard OpenCode tool)
-
-**Fallback Process:**
-```
-Exa MCP available?
-    ↓ No
-Try DuckDuckGo search
-    ↓ Unavailable or no results
-Use webfetch for specific URLs
-    ↓ No URLs available
-Report clear failure message
-```
-
-**Tool Selection by Fallback Level:**
-
-| Level | Tool | Use When |
-|-------|------|----------|
-| Primary | `exa:web_search_exa` | Default for all searches |
-| Primary | `deepwiki:deepWiki_ask_question` | GitHub repo questions |
-| Secondary | `duckduckgo_search` | Exa unavailable |
-| Tertiary | `webfetch` | Direct URL access only |
-
-See [references/fallback-tools.md](references/fallback-tools.md) for detailed fallback documentation.
-
-## Memory Caching
-
-If memory tool is available, cache successful search results for reuse.
-
-**Cache Structure:**
+**Multiple repositories:**
 ```json
 {
-  "intellisearch_cache": {
-    "[query_hash]": {
-      "query": "original query",
-      "tool_used": "exa|deepwiki|duckduckgo|webfetch",
-      "repo_found": "owner/repo|null",
-      "timestamp": "ISO timestamp",
-      "result_summary": "brief summary"
-    }
-  }
+  "repoName": ["npm/node-semver", "mattfarina/semver-isvalid", "jubianchi/semver-check"],
+  "question": "How do I validate semver strings in TypeScript?"
 }
 ```
 
-**Cache Check Process:**
-1. Before executing a search, check for exact query match
-2. Check for semantic similarity (same topic/technology)
-3. If cached repo found → skip detection, use cached routing decision
+The `repoName` parameter accepts both a string (single repo) and an array of strings (multiple repos).
 
-**Cache Operations:**
-```javascript
-// Before search: Check memory
-check_memory({
-  key: "intellisearch_cache"
-})
+**Critical format rules:**
+- Single repository: `repoName="owner/repo"`
+- Multiple repositories: `repoName=["owner1/repo1", "owner2/repo2"]`
+- ❌ Wrong: `repoName=["owner/repo"]` (single-item array causes search failure)
 
-// After successful search: Update cache
-write_memory({
-  key: "intellisearch_cache",
-  value: updated_cache
-})
+## Step 4: Provide Answer
+
+Interpret DeepWiki responses and provide a clear, actionable answer to the user.
+
+**Include:**
+- Best options found
+- Specific implementation guidance
+- Code examples when available
+- Links to relevant repositories
+
+## Example Usage
+
+**User request:**
+```
+"Find tools to validate semver specification strings"
 ```
 
-**Cache Benefits:**
-- Skip redundant repo detection for known technologies
-- Reuse routing decisions for follow-up questions
-- Reduce token usage on repeated queries
+**Process:**
+1. Search: `webfetch("https://www.google.com/search?q=site:github.com%20semver%20validation")`
+2. Extract repos: `["semver/semver", "npm/node-semver", "mattfarina/semver-isvalid"]`
+3. Query DeepWiki: `ask_question({ repoName: [...], question: "Is there a TypeScript-compatible package that can be used locally to validate semver strings?" })`
+4. Provide answer with recommendations
 
-## Error Handling
+## Tips
 
-Handle failures gracefully with clear reporting:
-
-**MCP Unavailable:**
-- Automatically use fallback chain
-- Report which fallback tool succeeded
-- Continue with degraded functionality
-
-**No Results:**
-- Try broader search terms
-- Use different tool in fallback chain
-- Report clearly: "No results found from [tool name]"
-
-**Partial Results:**
-- Present what was found
-- Note any limitations
-- Suggest alternative approaches
-
-**Error Response Template:**
-```
-Tool Status:
-- Exa MCP: [available/unavailable]
-- DuckDuckGo: [available/unavailable]
-- Results: [X found from primary tool / fallback used / none found]
-
-Result Summary: [brief description]
-Fallback Used: [none/duckduckgo/webfetch]
-```
-
-## Token Optimization
-
-- Use `"type": "fast"` for repository detection
-- Use `"highlights"` for initial queries (saves tokens vs "text")
-- Use deepWiki for code repos (more accurate, often more concise)
-- Reserve `"text"` mode for full content analysis
-- Check memory cache before executing new searches
-
-## References
-
-- **Exa tools**: See [references/exa-tools.md](references/exa-tools.md)
-- **deepWiki tools**: See [references/deepwiki-tools.md](references/deepwiki-tools.md)
-- **Routing workflows**: See [references/routing-workflows.md](references/routing-workflows.md)
-- **Fallback tools**: See [references/fallback-tools.md](references/fallback-tools.md)
+- Always search with `site:github.com` to find repositories directly
+- Extract all relevant repositories before querying DeepWiki
+- Use specific questions that mention the programming language or framework
+- Query multiple repositories simultaneously when they're relevant
+- Provide context about what the user is trying to accomplish in the DeepWiki question
