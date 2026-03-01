@@ -3,6 +3,9 @@ import { mkdir, rm, readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import plugin from "../../plugin.ts";
 
+const EXPECTED_VERSION: string = JSON.parse(
+  await readFile(path.join(import.meta.dirname, "../../package.json"), "utf-8")
+).version;
 const TEST_PROJECT_DIR = path.join(import.meta.dirname, "../fixtures/integration-test-project");
 
 describe("integration", () => {
@@ -104,7 +107,7 @@ describe("integration", () => {
       const version = await readFile(versionFile, "utf-8");
       
       // Should match current version
-      expect(version.trim()).toBe("0.3.2");
+      expect(version.trim()).toBe(EXPECTED_VERSION);
     });
 
     test("should not overwrite files when version matches", async () => {

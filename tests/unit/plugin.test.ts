@@ -3,6 +3,10 @@ import { mkdir, rm, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import plugin from "../../plugin.ts";
 
+// Expected version read dynamically from package.json
+const EXPECTED_VERSION: string = JSON.parse(
+  await readFile(path.join(import.meta.dirname, "../../package.json"), "utf-8")
+).version;
 const TEST_DIR = path.join(import.meta.dirname, "../fixtures/test-project");
 
 describe("plugin", () => {
@@ -45,7 +49,7 @@ describe("plugin", () => {
     // Verify version marker exists
     const versionFile = path.join(skillsDir, ".version");
     const version = await readFile(versionFile, "utf-8");
-    expect(version.trim()).toBe("0.3.2");
+    expect(version.trim()).toBe(EXPECTED_VERSION);
   });
 
   test("should skip installation if version marker matches", async () => {
@@ -85,7 +89,7 @@ describe("plugin", () => {
 
     // Verify version was updated
     const version = await readFile(versionFile, "utf-8");
-    expect(version.trim()).toBe("0.3.2");
+    expect(version.trim()).toBe(EXPECTED_VERSION);
   });
 
   test("should handle missing assets gracefully", async () => {
