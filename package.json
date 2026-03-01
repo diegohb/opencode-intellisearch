@@ -1,6 +1,6 @@
 {
   "name": "opencode-intellisearch",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "type": "module",
   "module": "index.ts",
   "repository": {
@@ -16,9 +16,8 @@
   "license": "MIT",
   "files": [
     "index.ts",
-    "source",
-    "assets",
-    "bunfig.toml"
+    "plugin.ts",
+    "assets"
   ],
   "scripts": {
     "check": "tsc --noEmit",
