@@ -10,170 +10,107 @@ metadata:
 
 ## Definitions
 
-| Term | Definition | OpenCode Example |
-|------|------------|------------------|
-| **Fetch Tool** | Reads content from URL parameter. Returns page content converted to text/markdown. | `webfetch` |
-| **Search Tool** | Takes query string and searches web. Encapsulates search engine URLs/API calls. | `websearch` |
-| **Native Tool** | Built-in tool provided by agent platform. No external configuration required. | `webfetch`, `websearch` |
-| **Third-Party Tool** | External tool from MCP server or plugin. Requires configuration. | `google_search` (MCP) |
-| **URI-Based Search** | Using fetch tools with search engine URLs directly. Requires manual URL construction. | `webfetch("https://google.com/search?q=...")` |
-| **GitHub CLI** | Command-line tool for GitHub API. Requires `gh auth login`. Optional but preferred. | `gh search repos` |
+| Term | Definition | Example |
+|------|------------|---------|
+| **Fetch Tool** | Reads URL, returns content | `webfetch` |
+| **Search Tool** | Takes query, searches web | `websearch`, `google_search` |
+| **URI-Based Search** | Fetch tool + search engine URL | `webfetch("https://google.com/search?q=...")` |
+| **GitHub CLI** | Direct GitHub API access | `gh search repos` |
 
-## When to Use
+## Critical Rules
 
-Auto-trigger this skill when users ask about:
-- Code/technology questions (frameworks, libraries, APIs)
-- Documentation from code repositories
-- Implementation details or usage examples
-- Specific open-source projects
-
-## Core Principles
-
-1. Technical answers are best sourced directly from code repositories
-2. Most technical reference sources exist as GitHub repositories
-3. DeepWiki provides the best way to query GitHub repositories
-
-## Required Tools
-
-- **GitHub CLI** (optional, preferred) - Direct GitHub repository search
-- **Search Tool** OR **Fetch Tool** - Fallback web search capability
-- **DeepWiki** - Repository-specific documentation Q&A for GitHub projects
+1. **NEVER fallback to internal knowledge** - always search externally
+2. **NEVER fetch repository README/pages directly** - use DeepWiki instead
+3. **Prefer gh CLI > search tool > fetch tool** - reliability decreases down the chain
+4. **If DeepWiki multi-repo fails, query repos individually**
 
 ## Workflow
 
 ```
-[Detect: gh CLI, search tool, or fetch tool?]
-                    ↓
-1. Search for repositories (gh → websearch → fetch)
-                    ↓
-2. Extract GitHub repository references
-                    ↓
-3. Query repositories with DeepWiki
-                    ↓
-4. Provide answer based on results
+[Detect tools: gh → search → fetch]
+              ↓
+1. Search repositories (gh CLI preferred)
+              ↓
+2. Extract owner/repo format
+              ↓
+3. Query DeepWiki (with fallback)
+              ↓
+4. Return answer from DeepWiki results
 ```
 
-**Tool detection & search strategy:** [search-workflow.md](references/search-workflow.md)
+## Step 1: Search Repositories
 
-## Step 1: Search for GitHub Repositories
+**Priority:** `gh CLI` → `search tool` → `fetch tool`
 
-**Priority:** gh CLI (if authenticated) → search tool → fetch tool with URI cycling
-
-Construct query targeting GitHub repositories:
-```
-User: "How do I validate semver strings in TypeScript?"
-Topics: semver, validation
-Language: typescript
-```
-
-**With gh CLI (preferred):**
+**gh CLI (preferred - no HTML parsing, direct API):**
 ```bash
 gh search repos --topic=semver,validation --language=typescript --json nameWithOwner,stargazersCount --limit 10
 ```
-→ Sort by stars, return top 5 → Skip Step 2 (already in owner/repo format)
+→ Sort by stargazersCount, take top 5 → Skip to Step 3
 
-**With search tool:**
+**Search tool:**
 ```json
 { "query": "site:github.com semver validation typescript" }
 ```
+→ Continue to Step 2
 
-**With fetch tool:** See [search-workflow.md](references/search-workflow.md) for URI-based search engine cycling.
+**Fetch tool:** See [search-workflow.md](references/search-workflow.md) for URI cycling
 
-## Step 2: Extract GitHub Repository References
+## Step 2: Extract Repositories (skip if gh CLI used)
 
-From the search results, extract GitHub repository URLs using regex patterns.
+Parse search results for GitHub URLs:
 
-**Detect these patterns:**
-- `https://github.com/{owner}/{repo}` - Standard repository URL
-- `https://{owner}.github.io/{repo}` - GitHub Pages site
+| Pattern | Regex | Example |
+|---------|-------|---------|
+| Standard repo | `github\.com/([\w-]+)/([\w.-]+)` | `github.com/npm/node-semver` → `npm/node-semver` |
+| GitHub Pages | `([\w-]+)\.github\.io/([\w.-]+)` | `npm.github.io/semver` → `npm/semver` |
 
-**Example regex patterns:**
-```
-github\.com/([\w-]+)/([\w.-]+)
-([\w-]+)\.github\.io/([\w.-]+)
-```
+## Step 3: Query DeepWiki
 
-**Extraction examples:**
-- `https://github.com/npm/node-semver` → `npm/node-semver`
-- `https://jubianchi.github.io/semver-check` → `jubianchi/semver-check`
-- `https://github.com/mattfarina/semver-isvalid` → `mattfarina/semver-isvalid`
-
-## Step 3: Query Repositories with DeepWiki
-
-Use DeepWiki's `ask_question` tool to query the extracted repositories.
-
-**Single repository:**
+**Multi-repo query (try first):**
 ```json
 {
-  "repoName": "npm/node-semver",
-  "question": "How do I validate semver strings in TypeScript?"
+  "repoName": ["npm/node-semver", "mattfarina/semver-isvalid"],
+  "question": "Is there a TypeScript-compatible package for validating semver strings?"
 }
 ```
 
-**Multiple repositories:**
+**IF multi-repo fails (any repo unindexed):**
 ```json
-{
-  "repoName": ["npm/node-semver", "mattfarina/semver-isvalid", "jubianchi/semver-check"],
-  "question": "How do I validate semver strings in TypeScript?"
-}
+// Query repos individually
+{ "repoName": "npm/node-semver", "question": "..." }
+{ "repoName": "mattfarina/semver-isvalid", "question": "..." }
 ```
 
-The `repoName` parameter accepts both a string (single repo) and an array of strings (multiple repos).
+**Format rules:**
+- Single: `repoName="owner/repo"` (string)
+- Multi: `repoName=["owner1/repo1", "owner2/repo2"]` (array, 2+ items)
+- ❌ Never: `repoName=["owner/repo"]` (single-item array fails)
 
-**Critical format rules:**
-- Single repository: `repoName="owner/repo"`
-- Multiple repositories: `repoName=["owner1/repo1", "owner2/repo2"]`
-- ❌ Wrong: `repoName=["owner/repo"]` (single-item array causes search failure)
+## Step 4: Return Answer
 
-## Step 4: Provide Answer
-
-Interpret DeepWiki responses and provide a clear, actionable answer to the user.
-
-**Include:**
-- Best options found
+From DeepWiki results, provide:
+- Best options with trade-offs
 - Specific implementation guidance
-- Code examples when available
-- Links to relevant repositories
+- Code examples if available
+- Repository links
 
-## Example Usage
+## Failure Handling
 
-**User request:**
-```
-"Find tools to validate semver specification strings"
-```
+| Failure | Action |
+|---------|--------|
+| gh CLI not available | Fall back to search tool |
+| Search tool not available | Fall back to fetch tool + URI cycling |
+| URI search fails (captcha/redirect) | Try next engine in cycle |
+| All URI searches fail | Report: "Unable to search - no working search method" |
+| DeepWiki multi-repo fails | Query repos individually |
+| DeepWiki single repo fails | Try next repo in list |
+| All DeepWiki queries fail | Report: "Repos found but not indexed by DeepWiki" |
 
-**Process:**
-1. Detect tools → gh CLI available
-2. Search: `gh search repos --topic=semver,validation --json nameWithOwner,stargazersCount --limit 10`
-3. Sort by stars, extract top 5: `["npm/node-semver", "semver/semver", "mattfarina/semver-isvalid", ...]`
-4. Query DeepWiki: `ask_question({ repoName: [...], question: "Is there a TypeScript-compatible package for validating semver strings?" })`
-5. Provide answer with recommendations
+## References
 
-**Fallback (no gh CLI):**
-1. Detect tools → search tool available
-2. Search: `websearch("site:github.com semver validation")`
-3. Extract repos from results
-4. Continue with DeepWiki query
-
-## Tips
-
-- **Prefer gh CLI** when available - direct GitHub API access, no HTML parsing needed
-- Infer topics from query context (framework/library names → topics)
-- Infer language when mentioned explicitly or from context
-- Sort gh results by stargazersCount, limit to top 5 for efficiency
-- Query multiple repositories simultaneously when they're relevant
-- Provide context about what the user is trying to accomplish in the DeepWiki question
-
-## Search Operator References
-
-**GitHub CLI** (preferred): `gh search repos` with `--topic`, `--language`, `--json`
-- Full reference: [gh-cli.md](references/gh-cli.md)
-
-**Google Search**: `site:github.com` + `""` for exact phrases, `-` to exclude terms
-- Full reference: [google-search.md](references/google-search.md)
-
-**Brave Search**: `site:`, `intitle:`, `filetype:`, logical operators (AND/OR/NOT)
-- Full reference: [brave-search.md](references/brave-search.md)
-
-**DuckDuckGo**: `site:`, `intitle:`, `inurl:`, `filetype:`, bang shortcuts
-- Full reference: [ddg-search.md](references/ddg-search.md)
+- [search-workflow.md](references/search-workflow.md) - Tool detection, URI cycling
+- [gh-cli.md](references/gh-cli.md) - GitHub CLI search syntax
+- [google-search.md](references/google-search.md) - Google operators
+- [brave-search.md](references/brave-search.md) - Brave operators
+- [ddg-search.md](references/ddg-search.md) - DuckDuckGo operators

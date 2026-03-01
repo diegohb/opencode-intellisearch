@@ -6,56 +6,72 @@ Tool detection and search strategy for finding GitHub repositories.
 
 ```
 IF gh auth status succeeds:
-  → Use gh search repos (direct GitHub API)
-ELSE IF search_tool exists (websearch, google_search, etc.):
+  → Use gh search repos
+ELSE IF search_tool exists:
   → Use search tool with site:github.com
-ELSE IF fetch_tool exists (webfetch, fetch, etc.):
+ELSE IF fetch_tool exists:
   → Use URI-based search with engine cycling
 ELSE:
-  → Report: No search capability available
+  → Report: "No search capability available"
 ```
 
-## GitHub CLI Strategy (Preferred)
-
-Direct GitHub repository search via `gh` CLI.
+## GitHub CLI (Preferred)
 
 **Detection:**
 ```bash
-gh auth status  # Exit 0 = available and authenticated
+gh auth status  # Exit 0 = available
 ```
 
 **Search:**
 ```bash
-gh search repos --topic=semver,validation --language=typescript --json nameWithOwner,stargazersCount --limit 10
+gh search repos --topic=TOPICS --language=LANG --json nameWithOwner,stargazersCount --limit 10
 ```
 
 **Process:**
-1. Infer topics from query context
+1. Infer topics from query (framework/library names → topics)
 2. Infer language if mentioned
-3. Get top 10 results
-4. Sort by stargazersCount, return top 5
+3. Sort by stargazersCount, return top 5
+4. Skip to DeepWiki query
 
-**Full reference:** [gh-cli.md](gh-cli.md)
+**Reference:** [gh-cli.md](gh-cli.md)
 
-## Search Tool Strategy (Fallback #1)
+## Search Tool (Fallback #1)
 
-Use web search tools with `site:github.com` operator:
+Use with `site:github.com` operator:
 
+```json
+{ "query": "site:github.com {keywords} {language}" }
+```
+
+**Example:**
 ```json
 { "query": "site:github.com semver validation typescript" }
 ```
 
-## URI-Based Strategy (Fallback #2)
+## URI-Based Search (Fallback #2)
 
-When only fetch tools available, cycle through search engines:
+When only fetch tools available, cycle through engines:
 
-| Engine | URL Format |
-|--------|------------|
-| Brave | `https://search.brave.com/search?q={terms}` |
-| DuckDuckGo | `https://ddg.gg/?q={terms}` |
-| Google | `https://www.google.com/search?q={terms}` |
+| Priority | Engine | URL |
+|----------|--------|-----|
+| 1 | Brave | `https://search.brave.com/search?q={terms}` |
+| 2 | DuckDuckGo | `https://ddg.gg/?q={terms}` |
+| 3 | Google | `https://www.google.com/search?q={terms}` |
 
-**Error handling:** Try each in order, use first success.
+**Error Handling:**
+```
+FOR each engine IN [brave, duckduckgo, google]:
+  result = fetch(engine_url)
+  IF success AND has_search_results:
+    RETURN result
+  CONTINUE
+RETURN error: all engines failed
+```
+
+**Failure Causes:**
+- JavaScript redirects (Google)
+- Captchas (DuckDuckGo)
+- HTML parsing issues
 
 **Example:**
 ```json
@@ -75,10 +91,11 @@ site:github.com {technology} {feature} {language}
 **Examples:**
 - `site:github.com react hooks typescript`
 - `site:github.com semver validation nodejs`
+- `site:github.com "graph database" python`
 
 ## References
 
-- [gh-cli.md](gh-cli.md) - GitHub CLI search details
-- [google-search.md](google-search.md) - Google operators
-- [brave-search.md](brave-search.md) - Brave operators
-- [ddg-search.md](ddg-search.md) - DuckDuckGo operators
+- [gh-cli.md](gh-cli.md)
+- [google-search.md](google-search.md)
+- [brave-search.md](brave-search.md)
+- [ddg-search.md](ddg-search.md)
