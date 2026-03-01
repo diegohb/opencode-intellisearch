@@ -17,6 +17,7 @@ metadata:
 | **Native Tool** | Built-in tool provided by agent platform. No external configuration required. | `webfetch`, `websearch` |
 | **Third-Party Tool** | External tool from MCP server or plugin. Requires configuration. | `google_search` (MCP) |
 | **URI-Based Search** | Using fetch tools with search engine URLs directly. Requires manual URL construction. | `webfetch("https://google.com/search?q=...")` |
+| **GitHub CLI** | Command-line tool for GitHub API. Requires `gh auth login`. Optional but preferred. | `gh search repos` |
 
 ## When to Use
 
@@ -34,20 +35,21 @@ Auto-trigger this skill when users ask about:
 
 ## Required Tools
 
-- **Search Tool** OR **Fetch Tool** - For web search capability
+- **GitHub CLI** (optional, preferred) - Direct GitHub repository search
+- **Search Tool** OR **Fetch Tool** - Fallback web search capability
 - **DeepWiki** - Repository-specific documentation Q&A for GitHub projects
 
 ## Workflow
 
 ```
-[Detect: search tool or fetch tool?]
-              ↓
-1. Search with site:github.com pattern
-              ↓
+[Detect: gh CLI, search tool, or fetch tool?]
+                    ↓
+1. Search for repositories (gh → websearch → fetch)
+                    ↓
 2. Extract GitHub repository references
-              ↓
+                    ↓
 3. Query repositories with DeepWiki
-              ↓
+                    ↓
 4. Provide answer based on results
 ```
 
@@ -55,13 +57,20 @@ Auto-trigger this skill when users ask about:
 
 ## Step 1: Search for GitHub Repositories
 
-**Prefer search tools** (websearch, google_search) when available. Otherwise use fetch tools with URI-based search.
+**Priority:** gh CLI (if authenticated) → search tool → fetch tool with URI cycling
 
 Construct query targeting GitHub repositories:
 ```
 User: "How do I validate semver strings in TypeScript?"
-Query: "site:github.com semver validation typescript"
+Topics: semver, validation
+Language: typescript
 ```
+
+**With gh CLI (preferred):**
+```bash
+gh search repos --topic=semver,validation --language=typescript --json nameWithOwner,stargazersCount --limit 10
+```
+→ Sort by stars, return top 5 → Skip Step 2 (already in owner/repo format)
 
 **With search tool:**
 ```json
@@ -134,23 +143,31 @@ Interpret DeepWiki responses and provide a clear, actionable answer to the user.
 ```
 
 **Process:**
-1. Detect tools → search tool available
-2. Search: `websearch("site:github.com semver validation")`
-3. Extract repos: `["semver/semver", "npm/node-semver", "mattfarina/semver-isvalid"]`
+1. Detect tools → gh CLI available
+2. Search: `gh search repos --topic=semver,validation --json nameWithOwner,stargazersCount --limit 10`
+3. Sort by stars, extract top 5: `["npm/node-semver", "semver/semver", "mattfarina/semver-isvalid", ...]`
 4. Query DeepWiki: `ask_question({ repoName: [...], question: "Is there a TypeScript-compatible package for validating semver strings?" })`
 5. Provide answer with recommendations
 
+**Fallback (no gh CLI):**
+1. Detect tools → search tool available
+2. Search: `websearch("site:github.com semver validation")`
+3. Extract repos from results
+4. Continue with DeepWiki query
+
 ## Tips
 
-- Always search with `site:github.com` to find repositories directly
-- Extract all relevant repositories before querying DeepWiki
-- Use specific questions that mention the programming language or framework
+- **Prefer gh CLI** when available - direct GitHub API access, no HTML parsing needed
+- Infer topics from query context (framework/library names → topics)
+- Infer language when mentioned explicitly or from context
+- Sort gh results by stargazersCount, limit to top 5 for efficiency
 - Query multiple repositories simultaneously when they're relevant
 - Provide context about what the user is trying to accomplish in the DeepWiki question
 
 ## Search Operator References
 
-When using fetch tools for URI-based searching, leverage search operators to refine queries:
+**GitHub CLI** (preferred): `gh search repos` with `--topic`, `--language`, `--json`
+- Full reference: [gh-cli.md](references/gh-cli.md)
 
 **Google Search**: `site:github.com` + `""` for exact phrases, `-` to exclude terms
 - Full reference: [google-search.md](references/google-search.md)
