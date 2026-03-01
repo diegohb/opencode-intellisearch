@@ -102,6 +102,11 @@ Select **top 3 repositories** before DeepWiki query.
 - Multi: `repoName=["owner1/repo1", "owner2/repo2"]` (array, 2+ items)
 - ❌ Never: `repoName=["owner/repo"]` (single-item array fails)
 
+**Efficiency rules:**
+- Query max 3 repos per request
+- Prioritize by: stars > recency > language match
+- If multi-repo fails, query top candidate only (not all individually)
+
 ## Step 4: Return Answer
 
 From DeepWiki results, provide:
@@ -109,6 +114,8 @@ From DeepWiki results, provide:
 - Specific implementation guidance
 - Code examples if available
 - Repository links
+
+> **Efficiency:** If you found more than 3 repos, prioritize by: stars > recency > language match. Only include details for your top 3 candidates.
 
 ## Failure Handling
 
