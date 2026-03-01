@@ -8,6 +8,16 @@ metadata:
   topic: github-repository-search
 ---
 
+## Definitions
+
+| Term | Definition | OpenCode Example |
+|------|------------|------------------|
+| **Fetch Tool** | Reads content from URL parameter. Returns page content converted to text/markdown. | `webfetch` |
+| **Search Tool** | Takes query string and searches web. Encapsulates search engine URLs/API calls. | `websearch` |
+| **Native Tool** | Built-in tool provided by agent platform. No external configuration required. | `webfetch`, `websearch` |
+| **Third-Party Tool** | External tool from MCP server or plugin. Requires configuration. | `google_search` (MCP) |
+| **URI-Based Search** | Using fetch tools with search engine URLs directly. Requires manual URL construction. | `webfetch("https://google.com/search?q=...")` |
+
 ## When to Use
 
 Auto-trigger this skill when users ask about:
