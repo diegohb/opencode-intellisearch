@@ -10,13 +10,18 @@ interface TokenMetrics {
 }
 
 interface LogEntry {
-  timestamp?: string;
-  input_tokens?: number;
-  output_tokens?: number;
-  tokens?: number;
-  usage?: {
-    input_tokens?: number;
-    output_tokens?: number;
+  type?: string;
+  part?: {
+    tokens?: {
+      total?: number;
+      input?: number;
+      output?: number;
+      reasoning?: number;
+      cache?: {
+        read?: number;
+        write?: number;
+      };
+    };
   };
 }
 
@@ -41,13 +46,10 @@ async function collectTokens(resultsDir: string): Promise<TokenMetrics[]> {
         try {
           const parsed: LogEntry = JSON.parse(line);
           
-          if (parsed.usage) {
-            totalInput += parsed.usage.input_tokens ?? 0;
-            totalOutput += parsed.usage.output_tokens ?? 0;
+          if (parsed.type === "step_finish" && parsed.part?.tokens) {
+            totalInput += parsed.part.tokens.input ?? 0;
+            totalOutput += parsed.part.tokens.output ?? 0;
           }
-          if (parsed.input_tokens) totalInput += parsed.input_tokens;
-          if (parsed.output_tokens) totalOutput += parsed.output_tokens;
-          if (parsed.tokens) totalOutput += parsed.tokens;
         } catch {
           // Skip non-JSON lines
         }
