@@ -23,6 +23,8 @@ metadata:
 2. **NEVER fetch repository README/pages directly** - use DeepWiki instead
 3. **Prefer gh CLI > search tool > fetch tool** - reliability decreases down the chain
 4. **If DeepWiki multi-repo fails, query repos individually**
+5. **Limit tool calls to 5 per query** - each call adds context tokens
+6. **Filter to top 3 repos before DeepWiki** - avoid over-exploration
 
 ## Workflow
 
