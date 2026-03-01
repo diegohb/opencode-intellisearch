@@ -78,3 +78,13 @@ Model: MiniMax-M2.5
 Transcript: [here](phase3-transcript.md)
 Tokens: 3947
 Model: MiniMax-M2.5
+
+**Version 0.3.2 - phase 4 without search tool**
+Transcript: [here](phase4-nosearchtool-transcript.md)
+Tokens: 6777
+Model: MiniMax-M2.5
+
+**Version 0.3.2 - phase 4 with search tool**
+Transcript: [here](phase4-nosearchtool-transcript.md)
+Tokens: 5965
+Model: MiniMax-M2.5
