@@ -16,9 +16,8 @@
   "license": "MIT",
   "files": [
     "index.ts",
-    "source",
-    "assets",
-    "bunfig.toml"
+    "plugin.ts",
+    "assets"
   ],
   "scripts": {
     "check": "tsc --noEmit",

@@ -104,7 +104,7 @@ describe("integration", () => {
       const version = await readFile(versionFile, "utf-8");
       
       // Should match current version
-      expect(version.trim()).toBe("0.3.0");
+      expect(version.trim()).toBe("0.3.1");
     });
 
     test("should not overwrite files when version matches", async () => {
