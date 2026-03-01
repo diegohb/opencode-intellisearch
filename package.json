@@ -22,7 +22,8 @@
   "scripts": {
     "check": "tsc --noEmit",
     "test": "bun test",
-    "test:watch": "bun test --watch"
+    "test:watch": "bun test --watch",
+    "test:e2e": "pwsh -File ./tests/e2e/run-isolated-test.ps1"
   },
   "dependencies": {
     "@opencode-ai/plugin": "*"
