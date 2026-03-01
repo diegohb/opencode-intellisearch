@@ -4,95 +4,64 @@ Tool detection and search strategy for finding GitHub repositories.
 
 ## Tool Detection
 
-Before searching, detect available tools:
-
 ```
-1. Check for search tools: websearch, google_search, brave_search, etc.
-2. Check for fetch tools: webfetch, fetch, etc.
-3. Branch based on availability
-```
-
-## Decision Tree
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                   AVAILABLE TOOLS                        │
-└─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-              ┌───────────────────────┐
-              │  Search tools exist?  │
-              └───────────────────────┘
-                    │           │
-                   YES          NO
-                    │           │
-                    ▼           ▼
-         ┌──────────────┐  ┌──────────────────────┐
-         │ Use search   │  │ Use fetch tools with │
-         │ tool directly│  │ URI-based search     │
-         └──────────────┘  └──────────────────────┘
-                    │           │
-                    │           ▼
-                    │    ┌─────────────────────┐
-                    │    │ Cycle: Brave → DDG  │
-                    │    │ → Google            │
-                    │    │ (first success)     │
-                    │    └─────────────────────┘
-                    │           │
-                    └───────────┘
-                          │
-                          ▼
-              ┌───────────────────────┐
-              │  Extract GitHub repos │
-              └───────────────────────┘
+IF search_tool exists (websearch, google_search, brave_search, etc.):
+  → Use search tool directly
+ELSE IF fetch_tool exists (webfetch, fetch, etc.):
+  → Use URI-based search with engine cycling
+ELSE:
+  → Report: No search capability available
 ```
 
-## Search Tool Strategy
+## Search Tool Strategy (Preferred)
 
-When search tools are available, use them directly with operators:
+Use search tools directly - simpler and more reliable:
 
 ```json
-{
-  "query": "site:github.com semver validation typescript"
-}
+{ "query": "site:github.com semver validation typescript" }
 ```
 
-**Benefits:**
-- Simpler - no URL construction needed
-- Faster - single API call
-- More reliable - no parsing HTML
+## URI-Based Search Strategy (Fallback)
 
-## URI-Based Search Strategy
+When only fetch tools available, cycle through search engines:
 
-When only fetch tools are available, use search engine URLs:
+### Engine Order (try in sequence)
 
-### Search Engine URLs
+1. **Brave**: `https://search.brave.com/search?q={terms}`
+2. **DuckDuckGo**: `https://ddg.gg/?q={terms}`
+3. **Google**: `https://www.google.com/search?q={terms}`
 
-| Engine | URL Format |
-|--------|------------|
-| Brave | `https://search.brave.com/search?q={terms}` |
-| DuckDuckGo | `https://ddg.gg/?q={terms}` |
-| Google | `https://www.google.com/search?q={terms}` |
-
-### Error Handling
-
-Try each engine in order until one succeeds:
+### Error Handling Pattern
 
 ```
-1. Try Brave Search
-   ↓ (on error)
-2. Try DuckDuckGo
-   ↓ (on error)
-3. Try Google Search
-   ↓ (on error)
-4. Report failure
+FOR each engine IN [brave, duckduckgo, google]:
+  result = fetch(engine_url)
+  IF result.success AND has_content:
+    RETURN result
+  CONTINUE to next engine
+RETURN error: all engines failed
 ```
 
-### Example Call
+### Example Implementation
 
 ```json
+// Try Brave first
 {
   "url": "https://search.brave.com/search?q=site:github.com%20semver%20validation",
+  "format": "markdown",
+  "timeout": 10
+}
+
+// If Brave fails, try DuckDuckGo
+{
+  "url": "https://ddg.gg/?q=site:github.com%20semver%20validation",
+  "format": "markdown",
+  "timeout": 10
+}
+
+// If DDG fails, try Google
+{
+  "url": "https://www.google.com/search?q=site:github.com%20semver%20validation",
   "format": "markdown",
   "timeout": 10
 }
@@ -100,18 +69,18 @@ Try each engine in order until one succeeds:
 
 ## Query Construction
 
-Always include `site:github.com` to target repositories:
+Always prefix with `site:github.com`:
 
-```
-site:github.com {search terms}
-```
-
-**With context:**
 ```
 site:github.com {technology} {feature} {language}
 ```
 
-**Example:**
-```
-site:github.com react hooks typescript
-```
+**Examples:**
+- `site:github.com react hooks typescript`
+- `site:github.com semver validation nodejs`
+- `site:github.com "graph database" python`
+
+See operator references for advanced patterns:
+- [google-search.md](google-search.md)
+- [brave-search.md](brave-search.md)
+- [ddg-search.md](ddg-search.md)
