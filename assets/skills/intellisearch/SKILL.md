@@ -34,45 +34,41 @@ Auto-trigger this skill when users ask about:
 
 ## Required Tools
 
-- **webfetch** - Fetch content from URLs and search engines
+- **Search Tool** OR **Fetch Tool** - For web search capability
 - **DeepWiki** - Repository-specific documentation Q&A for GitHub projects
 
 ## Workflow
 
-Follow this linear process:
+```
+[Detect: search tool or fetch tool?]
+              ↓
+1. Search with site:github.com pattern
+              ↓
+2. Extract GitHub repository references
+              ↓
+3. Query repositories with DeepWiki
+              ↓
+4. Provide answer based on results
+```
 
-```
-1. User asks technical question
-       ↓
-2. Search with site:github.com pattern
-       ↓
-3. Extract GitHub repository references
-       ↓
-4. Map to {owner}/{repo} format
-       ↓
-5. Query repositories with DeepWiki
-       ↓
-6. Provide answer based on results
-```
+**Tool detection & search strategy:** [search-workflow.md](references/search-workflow.md)
 
 ## Step 1: Search for GitHub Repositories
 
-When a user asks a technical question, construct a search query that targets GitHub repositories directly.
+**Prefer search tools** (websearch, google_search) when available. Otherwise use fetch tools with URI-based search.
 
-**Example query:**
+Construct query targeting GitHub repositories:
 ```
 User: "How do I validate semver strings in TypeScript?"
-Search query: "site:github.com semver validation typescript"
+Query: "site:github.com semver validation typescript"
 ```
 
-Use webfetch to search:
+**With search tool:**
 ```json
-{
-  "url": "https://www.google.com/search?q=site:github.com%20semver%20validation%20typescript",
-  "format": "markdown",
-  "timeout": 10
-}
+{ "query": "site:github.com semver validation typescript" }
 ```
+
+**With fetch tool:** See [search-workflow.md](references/search-workflow.md) for URI-based search engine cycling.
 
 ## Step 2: Extract GitHub Repository References
 
@@ -138,10 +134,11 @@ Interpret DeepWiki responses and provide a clear, actionable answer to the user.
 ```
 
 **Process:**
-1. Search: `webfetch("https://www.google.com/search?q=site:github.com%20semver%20validation")`
-2. Extract repos: `["semver/semver", "npm/node-semver", "mattfarina/semver-isvalid"]`
-3. Query DeepWiki: `ask_question({ repoName: [...], question: "Is there a TypeScript-compatible package that can be used locally to validate semver strings?" })`
-4. Provide answer with recommendations
+1. Detect tools → search tool available
+2. Search: `websearch("site:github.com semver validation")`
+3. Extract repos: `["semver/semver", "npm/node-semver", "mattfarina/semver-isvalid"]`
+4. Query DeepWiki: `ask_question({ repoName: [...], question: "Is there a TypeScript-compatible package for validating semver strings?" })`
+5. Provide answer with recommendations
 
 ## Tips
 
