@@ -48,13 +48,23 @@ In a new agent session with no skills loaded. Assign this prompt to a subagent:
 > frontend: vitejs + aurelia 2 
 > backend: dotnet 9 c# webapi
 
-Using MiniMax-M2.5, decently capable model, the work required over 10k tokens! The naive, brute-force approach. The conclusion and recommendation was not bad but this is not about the WHAT... it's the HOW we're interested in and efficiency, or lack there of.
+**Variation 1:**
+Transcript: [baseline-pure-web-fetch-transcript.md](baseline-pure-web-fetch-transcript.md).
+Tokens: 6143
+Model: MiniMax-M2.5
 
-See full transcript [here](baseline-naive-transcript.md).
+**Variation 2:**
+Transcript: [baseline-naive-transcript.md](baseline-naive-transcript.md).
 Tokens: 11719
 Model: MiniMax-M2.5
 
-## v0.3.0 vs Baseline
+## Comparison Against Intellisearch
+**Version 0.3.0**:
 Transcript: [here](intellisearch-v0_3_0-transcript.md)
 Tokens: 12652
+Model: MiniMax-M2.5
+
+**Version 0.3.2 - phase 1**
+Transcript: [here](phase1-transcript.md)
+Tokens: 8570
 Model: MiniMax-M2.5
