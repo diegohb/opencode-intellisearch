@@ -25,3 +25,7 @@ Thumbs.db
 *.tmp
 *.temp
 .npmrc
+
+.opencode/bun.lock
+.opencode/package.json
+.opencode/docs
