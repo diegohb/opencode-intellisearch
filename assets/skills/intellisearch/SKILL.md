@@ -35,7 +35,9 @@ metadata:
               ↓
 2. Extract owner/repo format
               ↓
-3. Query DeepWiki (with fallback)
+2.5. Filter to top 3 by stars
+              ↓
+3. Query DeepWiki (max 3 repos)
               ↓
 4. Return answer from DeepWiki results
 ```
@@ -66,6 +68,17 @@ Parse search results for GitHub URLs:
 |---------|-------|---------|
 | Standard repo | `github\.com/([\w-]+)/([\w.-]+)` | `github.com/npm/node-semver` → `npm/node-semver` |
 | GitHub Pages | `([\w-]+)\.github\.io/([\w.-]+)` | `npm.github.io/semver` → `npm/semver` |
+
+## Step 2.5: Filter Candidates
+
+Select **top 3 repositories** before DeepWiki query.
+
+**Prioritization:**
+1. **Stars** - Higher count = community validation
+2. **Recency** - Recent commits = active maintenance
+3. **Language match** - Prefer repos matching query language
+
+**Do not query DeepWiki for repos you won't recommend.**
 
 ## Step 3: Query DeepWiki
 
