@@ -30,7 +30,7 @@ Thank you for your interest in contributing to intellisearch!
 ```bash
 # Fork repository on GitHub
 # Clone your fork
-git clone https://github.com/diegohb/opencode-intellisearch.git
+git clone https://github.com/expert-vision-software/opencode-intellisearch.git
 cd opencode-intellisearch
 ```
 
@@ -398,7 +398,7 @@ For documentation improvements:
 
 ## Getting Help
 
-- Check existing [GitHub Issues](https://github.com/diegohb/opencode-intellisearch/issues)
+- Check existing [GitHub Issues](https://github.com/expert-vision-software/opencode-intellisearch/issues)
 - Review [OpenCode Documentation](https://opencode.ai/docs)
 - Join [OpenCode Discord](https://discord.gg/opencode)
 
