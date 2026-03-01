@@ -1,8 +1,12 @@
 {
   "name": "opencode-intellisearch",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "module": "index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/expert-vision-software/opencode-intellisearch.git"
+  },
   "publisher": "Expert Vision Software",
   "author": "Expert Vision Support <support@expertvision.software>",
   "bugs": {
