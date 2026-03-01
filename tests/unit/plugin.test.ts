@@ -45,7 +45,7 @@ describe("plugin", () => {
     // Verify version marker exists
     const versionFile = path.join(skillsDir, ".version");
     const version = await readFile(versionFile, "utf-8");
-    expect(version.trim()).toBe("0.3.1");
+    expect(version.trim()).toBe("0.3.2");
   });
 
   test("should skip installation if version marker matches", async () => {
@@ -85,7 +85,7 @@ describe("plugin", () => {
 
     // Verify version was updated
     const version = await readFile(versionFile, "utf-8");
-    expect(version.trim()).toBe("0.3.1");
+    expect(version.trim()).toBe("0.3.2");
   });
 
   test("should handle missing assets gracefully", async () => {

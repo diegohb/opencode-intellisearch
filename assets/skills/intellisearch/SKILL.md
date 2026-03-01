@@ -150,3 +150,16 @@ Interpret DeepWiki responses and provide a clear, actionable answer to the user.
 - Use specific questions that mention the programming language or framework
 - Query multiple repositories simultaneously when they're relevant
 - Provide context about what the user is trying to accomplish in the DeepWiki question
+
+## Search Operator References
+
+When using fetch tools for URI-based searching, leverage search operators to refine queries:
+
+**Google Search**: `site:github.com` + `""` for exact phrases, `-` to exclude terms
+- Full reference: [google-search.md](references/google-search.md)
+
+**Brave Search**: `site:`, `intitle:`, `filetype:`, logical operators (AND/OR/NOT)
+- Full reference: [brave-search.md](references/brave-search.md)
+
+**DuckDuckGo**: `site:`, `intitle:`, `inurl:`, `filetype:`, bang shortcuts
+- Full reference: [ddg-search.md](references/ddg-search.md)
